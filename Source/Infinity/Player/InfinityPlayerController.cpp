@@ -1,0 +1,201 @@
+// Made by Bruce Crum
+
+
+#include "InfinityPlayerController.h"
+#include "InfinityPlayerState.h"
+#include "Infinity/HUD/InfinityHUD.h"
+#include "Blueprint/UserWidget.h"
+
+AInfinityPlayerController::AInfinityPlayerController()
+{
+	bIsChatting = false;
+	bIsInGameMenu = false;
+	bIsLookingAtScoreboard = false;
+
+	InGameMenuWidget = nullptr;
+	ScoreboardWidget = nullptr;
+
+#if UE_SERVER
+	InGameMenuWidgetClass = nullptr;
+	ScoreboardWidgetClass = nullptr;
+#else
+	// InGameMenu
+	static ConstructorHelpers::FClassFinder<UUserWidget> InGameMenuWidgetFinder(TEXT("/Game/UI/Widgets/HUD/BP_InGameMenu"));
+	InGameMenuWidgetClass = InGameMenuWidgetFinder.Succeeded() ? InGameMenuWidgetFinder.Class : nullptr;
+
+	// Scoreboard
+	static ConstructorHelpers::FClassFinder<UUserWidget> ScoreboardWidgetFinder(TEXT("/Game/UI/Widgets/HUD/Scoreboard/BP_Scoreboard"));
+	ScoreboardWidgetClass = ScoreboardWidgetFinder.Class;
+#endif
+}
+
+void AInfinityPlayerController::ConstructWidgets()
+{
+	if (InGameMenuWidgetClass)
+	{
+		InGameMenuWidget = CreateWidget<UUserWidget>(this, InGameMenuWidgetClass);
+		if (InGameMenuWidget)
+		{
+			// We add to viewport then hide.
+			InGameMenuWidget->AddToViewport(1);
+			InGameMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Error, attempted to create InGameMenu widget, but InGameMenu class is null"));
+	}
+
+	if (ScoreboardWidgetClass)
+	{
+		ScoreboardWidget = CreateWidget<UUserWidget>(this, ScoreboardWidgetClass);
+		if (ScoreboardWidget)
+		{
+			// We add to viewport then hide.
+			ScoreboardWidget->AddToViewport();
+			ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Error, attempted to create Scoreboard widget, but Scoreboard class is null"));
+	}
+}
+
+void AInfinityPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	InputComponent->BindAction("StartChat", IE_Pressed, this, &AInfinityPlayerController::StartChat);
+	InputComponent->BindAction("InGameMenu", IE_Pressed, this, &AInfinityPlayerController::ToggleInGameMenu);
+
+	InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AInfinityPlayerController::ShowScoreboard);
+	InputComponent->BindAction("Scoreboard", IE_Released, this, &AInfinityPlayerController::HideScoreboard);
+}
+
+void AInfinityPlayerController::StartChat()
+{
+	const auto TaskForceHUD = Cast<AInfinityHUD>(GetHUD());
+	if (TaskForceHUD)
+	{
+		TaskForceHUD->StartChatInput();
+	}
+}
+
+void AInfinityPlayerController::ServerSendChatMessage_Implementation(const FText& Message)
+{
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		const auto PC = Cast<AInfinityPlayerController>(*Iterator);
+		if (!PC)
+		{
+			continue;
+		}
+
+		PC->ClientTeamMessage(PlayerState, Message.ToString(), false ? TEXT("Host") : TEXT("Client"));
+	}
+}
+
+bool AInfinityPlayerController::ServerSendChatMessage_Validate(const FText& Message)
+{
+	return true;
+}
+
+void AInfinityPlayerController::ClientTeamMessage_Implementation(APlayerState* SenderPlayerStateBase, const FString& S, FName Type, float MsgLifeTime)
+{
+	Super::ClientTeamMessage_Implementation(SenderPlayerStateBase, S, Type, MsgLifeTime);
+
+	const auto SenderPlayerState = Cast<AInfinityPlayerState>(SenderPlayerStateBase);;
+
+	const bool bGamemodeSay = Type == FName(TEXT("Gamemode"));
+	const bool bHostSay = Type == FName(TEXT("Host"));
+
+	static FFormatNamedArguments Arguments;
+	Arguments.Add(TEXT("Name"), FText::FromString(SenderPlayerState->GetPlayerName()));
+	Arguments.Add(TEXT("Title"), FText::FromString(bHostSay ? TEXT("(Host)") : TEXT("")));
+	Arguments.Add(TEXT("Message"), FText::FromString(S));
+
+	OnChatMessageReceived(FText::Format(NSLOCTEXT("HUD", "ChatMessageFormat", "{Name} {Title}: {Message}"), Arguments), SenderPlayerState);
+}
+
+void AInfinityPlayerController::OnChatMessageReceived(const FText& Message, AInfinityPlayerState* SenderPlayerState /*= nullptr*/)
+{
+	const auto TaskForceHUD = Cast<AInfinityHUD>(GetHUD());
+	if (TaskForceHUD)
+	{
+		TaskForceHUD->OnChatMessageReceived(Message, SenderPlayerState);
+	}
+}
+
+void AInfinityPlayerController::OnChatInputStarted()
+{
+	bIsChatting = true;
+	UpdateInputMode();
+}
+
+void AInfinityPlayerController::OnChatInputEnded()
+{
+	bIsChatting = false;
+	UpdateInputMode();
+}
+
+void AInfinityPlayerController::ToggleInGameMenu()
+{
+	SetShowInGameMenu(!bIsInGameMenu);
+}
+
+void AInfinityPlayerController::SetShowInGameMenu(const bool NewIsInGameMenu)
+{
+	if (InGameMenuWidget)
+	{
+		bIsInGameMenu = NewIsInGameMenu;
+		
+		const ESlateVisibility Visibility = bIsInGameMenu ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed;
+		InGameMenuWidget->SetVisibility(Visibility);
+
+		UpdateInputMode();
+	}
+}
+
+void AInfinityPlayerController::ShowScoreboard()
+{
+	if (ScoreboardWidget)
+	{
+		bIsLookingAtScoreboard = true;
+
+		ScoreboardWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+
+		UpdateInputMode();
+	}
+}
+
+void AInfinityPlayerController::HideScoreboard()
+{
+	if (ScoreboardWidget)
+	{
+		bIsLookingAtScoreboard = false;
+
+		ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed);
+
+		UpdateInputMode();
+	}
+}
+
+void AInfinityPlayerController::UpdateInputMode()
+{
+	if (bIsChatting || bIsInGameMenu)
+	{
+		SetInputMode(FInputModeUIOnly());
+		bShowMouseCursor = true;
+		return;
+	}
+
+	if (bIsLookingAtScoreboard)
+	{
+		SetInputMode(FInputModeGameAndUI());
+		bShowMouseCursor = true;
+	}
+
+	SetInputMode(FInputModeGameOnly());
+	bShowMouseCursor = false;
+}

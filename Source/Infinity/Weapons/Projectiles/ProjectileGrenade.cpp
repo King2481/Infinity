@@ -1,0 +1,101 @@
+// Made by Bruce Crum
+
+
+#include "ProjectileGrenade.h"
+
+#include "ProjectileGrenade.h"
+#include "Engine/World.h"
+#include "Kismet/KismetSystemLibrary.h" 
+#include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+
+#if !UE_BUILD_SHIPPING
+static TAutoConsoleVariable<int32> CvarDebugExplosion(TEXT("DebugExplosions"), 0, TEXT("Visualise Explosion Info"));
+#endif
+
+AProjectileGrenade::AProjectileGrenade()
+{
+	bImpactGrenade = false;
+	ExplosionTime = -1.f;
+	bDestroyOnHit = false; // The explosion will handle destroying the actor
+
+	ProjectileMovement->bShouldBounce = true;
+}
+
+void AProjectileGrenade::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (HasAuthority() && ExplosionTime > FLT_EPSILON)
+	{
+		GetWorldTimerManager().SetTimer(ExplodeTimerHandle, this, &AProjectileGrenade::Explode, 5.f);
+	}
+}
+
+void AProjectileGrenade::Explode()
+{
+	GetWorldTimerManager().ClearAllTimersForObject(this);
+	ExplodeAt(GetActorLocation(), ExplosionConfig);
+}
+
+void AProjectileGrenade::ExplodeAt(const FVector& Location, const FExplosionConfig& InExplosionConfig)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(this);
+
+	// TODO: Custom statics function if there are multple things that can "explode"
+	UGameplayStatics::ApplyRadialDamageWithFalloff(this, InExplosionConfig.ExplosionInnerDamage, InExplosionConfig.ExplosionOuterDamage, GetActorLocation() + FVector(0.f, 0.f, 1.f), InExplosionConfig.ExplosionInnerRadius, InExplosionConfig.ExplosionOuterRadius, 1.f, InExplosionConfig.DamageTypeClass, IgnoredActors, this, GetInstigatorController());
+
+	if (ExplosionConfig.ExplosionCameraShakeClass)
+	{
+		UGameplayStatics::PlayWorldCameraShake(this, InExplosionConfig.ExplosionCameraShakeClass, GetActorLocation(), InExplosionConfig.ExplosionCameraShakeInnerRadius, InExplosionConfig.ExplosionCameraShakeOuterRadius);
+	}
+
+	MulticastExplode(Location);
+
+	Destroy();
+}
+
+void AProjectileGrenade::MulticastExplode_Implementation(const FVector& Location)
+{
+#if !UE_SERVER
+
+	if (GetWorld()->GetNetMode() == ENetMode::NM_DedicatedServer)
+	{
+		// Don't play on dedicated.
+		return;
+	}
+
+#if !UE_BUILD_SHIPPING
+	if (CvarDebugExplosion.GetValueOnGameThread() > 0)
+	{
+		UKismetSystemLibrary::DrawDebugSphere(this, Location + FVector(0.f, 0.f, 1.f), ExplosionConfig.ExplosionInnerRadius, 12, FColor::Red, 5.f, 1.f);
+		UKismetSystemLibrary::DrawDebugSphere(this, Location + FVector(0.f, 0.f, 1.f), ExplosionConfig.ExplosionOuterRadius, 12, FColor::Yellow, 5.f, 1.f);
+	}
+#endif
+
+#endif	
+}
+
+void AProjectileGrenade::HandleImpact(const FHitResult& Impact)
+{
+	Super::HandleImpact(Impact);
+
+	if (HasAuthority())
+	{
+		if (Impact.GetActor() && DirectHitActorsThatCauseBiggerExplosion.Contains(Impact.GetActor()->GetClass()))
+		{
+			ExplodeAt(GetActorLocation(), DirectHitExplosionConfig);
+		}
+		else if (bImpactGrenade)
+		{
+			Explode();
+		}
+	}
+}

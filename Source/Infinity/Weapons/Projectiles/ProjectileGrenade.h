@@ -1,0 +1,111 @@
+// Made by Bruce Crum
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Infinity/Weapons/Projectiles/ProjectileBase.h"
+#include "ProjectileGrenade.generated.h"
+
+class UCameraShake;
+class USurfaceReaction;
+
+USTRUCT(BlueprintType)
+struct FExplosionConfig
+{
+	GENERATED_BODY()
+
+	///////////////////////////////////////////////////////////////////
+	// Explosion Config
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ExplosionInnerRadius;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ExplosionOuterRadius;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ExplosionInnerDamage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ExplosionOuterDamage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UDamageType> DamageTypeClass;
+
+	///////////////////////////////////////////////////////////////////
+	// Camera Shake Config
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UCameraShake> ExplosionCameraShakeClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ExplosionCameraShakeInnerRadius;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float ExplosionCameraShakeOuterRadius;
+
+	FExplosionConfig()
+	{
+		ExplosionInnerRadius = 150.f;
+		ExplosionOuterRadius = 450.f;
+		ExplosionInnerDamage = 100.f;
+		ExplosionOuterDamage = 10.f;
+		DamageTypeClass = nullptr;
+
+		ExplosionCameraShakeClass = nullptr;
+		ExplosionCameraShakeInnerRadius = 200.f;
+		ExplosionCameraShakeOuterRadius = 1000.f;
+	}
+};
+
+
+/**
+ * 
+ */
+UCLASS()
+class INFINITY_API AProjectileGrenade : public AProjectileBase
+{
+	GENERATED_BODY()
+
+public:
+
+	AProjectileGrenade();
+
+	// Called on actor once everything has been initialized.
+	virtual void BeginPlay() override;
+
+protected:
+
+	// Explodes the projectile.
+	void Explode();
+
+	// Explodes at a specfic location
+	void ExplodeAt(const FVector& Location, const FExplosionConfig& InExplosionConfig);
+
+	// Explosion Multicast, plays things like FX and sound.
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastExplode(const FVector& Location);
+	void MulticastExplode_Implementation(const FVector& Location);
+
+	FTimerHandle ExplodeTimerHandle;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Grenade")
+	FExplosionConfig ExplosionConfig;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Grenade")
+	TArray<TSubclassOf<AActor>> DirectHitActorsThatCauseBiggerExplosion;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Grenade")
+	FExplosionConfig DirectHitExplosionConfig;
+
+	// Do we explode on impact?
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Grenade")
+	bool bImpactGrenade;
+
+	// If timed explosion, how long does it take to blow up?
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Grenade")
+	float ExplosionTime;
+
+	virtual void HandleImpact(const FHitResult& Impact) override;
+	
+};

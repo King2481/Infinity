@@ -1,0 +1,121 @@
+// Made by Bruce Crum
+
+
+#include "ItemEquipable.h"
+#include "Net/UnrealNetwork.h"
+#include "Infinity/Characters/InfinityCharacter.h"
+
+AItemEquipable::AItemEquipable()
+{
+	ItemSlot = EItemSlot::IS_Misc;
+	EquipableState = EEquipableState::Unequipped;
+	SimulatedEquipableState = EEquipableState::Unequipped;
+}
+
+void AItemEquipable::InitItem(AInfinityCharacter* NewOwner)
+{
+	Super::InitItem(NewOwner);
+
+	SetActorHiddenInGame(true);
+}
+
+void AItemEquipable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AItemEquipable, EquipableState);
+}
+
+void AItemEquipable::Equip()
+{
+	SetEquipableState(EEquipableState::Equipped);
+}
+
+void AItemEquipable::Unequip()
+{
+	SetEquipableState(EEquipableState::Unequipped);
+}
+
+void AItemEquipable::OnEquipped()
+{
+	if (PawnOwner)
+	{
+		PawnOwner->SetupFirstPersonWeaponMesh(Mesh1PAsset);
+	}
+
+	SetActorHiddenInGame(false);
+}
+
+void AItemEquipable::OnUnequipped()
+{
+	SetActorHiddenInGame(true);
+}
+
+void AItemEquipable::SetEquipableState(EEquipableState NewState)
+{
+	EquipableState = NewState;
+	SimulatedEquipableState = NewState;
+
+	OnEquipableStateChanged();
+}
+
+EEquipableState AItemEquipable::GetEquipableState() const
+{
+	if (!HasAuthority())
+	{
+		return SimulatedEquipableState;
+	}
+
+	return EquipableState;
+}
+
+void AItemEquipable::OnRep_EquipableState()
+{
+	if (EquipableState == SimulatedEquipableState)
+	{
+		return;
+	}
+
+	OnEquipableStateChanged();
+}
+
+void AItemEquipable::OnEquipableStateChanged()
+{
+	switch (EquipableState)
+	{
+		case EEquipableState::Equipping:
+		{
+			Equip();
+			break;
+		}
+
+		case EEquipableState::Equipped:
+		{
+			OnEquipped();
+			break;
+		}
+
+		case EEquipableState::Unequipping:
+		{
+			Unequip();
+			break;
+		}
+
+		case EEquipableState::Unequipped:
+		{
+			OnUnequipped();
+			break;
+		}
+
+		default:
+		{
+			// Do nothing
+			break;
+		}
+	}
+}
+
+bool AItemEquipable::CanEquip() const
+{
+	return true;
+}
