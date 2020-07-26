@@ -18,7 +18,7 @@ AItemWeapon::AItemWeapon()
 	DamageTypeClass = nullptr;
 
 	Ammo = 0;
-	//AmmoType = EAmmoType::AT_None;
+	AmmoType = EAmmoType::AT_None;
 	StartingAmmo = 0;
 	bConsumesAmmo = true;
 	SurfaceReaction = nullptr;
@@ -43,9 +43,16 @@ void AItemWeapon::InitItem(AInfinityCharacter* NewOwner)
 		// We were just picked up, give the owner some ammo.
 		if (StartingAmmo > 0)
 		{
-			//NewOwner->GiveAmmo(AmmoType, StartingAmmo);
+			NewOwner->GiveAmmo(AmmoType, StartingAmmo);
 		}
 	}
+}
+
+void AItemWeapon::Equip()
+{
+	Super::Equip();
+
+	UpdateAmmo();
 }
 
 bool AItemWeapon::AllowFire() const
@@ -102,7 +109,7 @@ void AItemWeapon::UpdateAmmo()
 {
 	if (PawnOwner)
 	{
-		//Ammo = PawnOwner->GetAmmoAmountForType(AmmoType);
+		Ammo = PawnOwner->GetAmmoAmountForType(AmmoType);
 	}
 }
 

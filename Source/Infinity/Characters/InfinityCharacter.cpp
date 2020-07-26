@@ -11,6 +11,7 @@
 #include "Infinity/Items/ItemEquipable.h"
 #include "Infinity/GameModes/InfinityGameModeBase.h"
 #include "Infinity/Weapons/PowerUp.h"
+#include "Infinity/Weapons/ItemWeapon.h"
 
 // Sets default values
 AInfinityCharacter::AInfinityCharacter(const FObjectInitializer& ObjectInitializer)
@@ -49,7 +50,7 @@ AInfinityCharacter::AInfinityCharacter(const FObjectInitializer& ObjectInitializ
 	ArmMesh1P->bOnlyOwnerSee = true;
 
 	WeaponMesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh1P"));
-	WeaponMesh1P->SetupAttachment(ArmMesh1P, FName("WeaponGripPoint"));
+	WeaponMesh1P->SetupAttachment(ArmMesh1P);
 	WeaponMesh1P->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
 	WeaponMesh1P->CastShadow = false;
 	WeaponMesh1P->bOnlyOwnerSee = true;
@@ -105,7 +106,7 @@ void AInfinityCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(AInfinityCharacter, PowerUps);
 
 	// Owner only
-	//DOREPLIFETIME_CONDITION(AInfinityCharacter, StoredAmmo, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AInfinityCharacter, StoredAmmo, COND_OwnerOnly);
 
 	// Third Parties
 	DOREPLIFETIME_CONDITION(AInfinityCharacter, bIsSliding, COND_SkipOwner);
@@ -840,4 +841,69 @@ float AInfinityCharacter::GetDamageMultipliers() const
 bool AInfinityCharacter::AllowWeaponSwapping() const
 {
 	return true;
+}
+
+void AInfinityCharacter::GiveAmmo(EAmmoType AmmoType, int32 AmountToGive)
+{
+	bool bFound = false;
+
+	for (auto& AmmoSlot : StoredAmmo)
+	{
+		if (AmmoSlot.AmmoType != AmmoType)
+		{
+			continue;
+		}
+
+		AmmoSlot.Ammo += AmountToGive;
+		bFound = true;
+	}
+
+	if (!bFound)
+	{
+		// Couldn't find it, add it to our stored ammo.
+		FStoredAmmo NewAmmo(AmmoType, AmountToGive);
+		StoredAmmo.Add(NewAmmo);
+	}
+
+	const auto Weapon = Cast<AItemWeapon>(CurrentEquipable);
+	if (Weapon)
+	{
+		Weapon->UpdateAmmo();
+	}
+}
+
+void AInfinityCharacter::StoreAmmo(EAmmoType AmmoType, int32 AmountToStore)
+{
+	for (auto& AmmoSlot : StoredAmmo)
+	{
+		if (AmmoSlot.AmmoType != AmmoType)
+		{
+			continue;
+		}
+
+		AmmoSlot.Ammo = AmountToStore;
+		return;
+	}
+
+	// Couldn't find it, add it to our stored ammo.
+	FStoredAmmo NewAmmo(AmmoType, AmountToStore);
+	StoredAmmo.Add(NewAmmo);
+}
+
+int32 AInfinityCharacter::GetAmmoAmountForType(EAmmoType AmmoType) const
+{
+	int32 Amount = 0;
+
+	for (auto& AmmoSlot : StoredAmmo)
+	{
+		if (AmmoSlot.AmmoType != AmmoType)
+		{
+			continue;
+		}
+
+		Amount = AmmoSlot.Ammo;
+		break;
+	}
+
+	return Amount;
 }

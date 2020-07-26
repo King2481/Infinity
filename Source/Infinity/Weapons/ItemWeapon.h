@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Infinity/Items/ItemEquipable.h"
+#include "Infinity/Weapons/WeaponEnums.h"
 #include "ItemWeapon.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogWeapon, Log, Verbose);
@@ -53,6 +54,9 @@ public:
 	// Returns a damage multiplier for when we are dealing damage.
 	virtual float GetDamageMultiplier(TWeakObjectPtr<AActor> HitActor, TWeakObjectPtr<UPhysicalMaterial> HitMaterial) const;
 
+	// Called when we equip the weapon
+	virtual void Equip() override;
+
 protected:
 
 	// Checks to see if we can actually deal damage.
@@ -70,8 +74,8 @@ protected:
 	int32 Ammo;
 
 	// What is the ammo type for this weapon?
-	//UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Weapon")
-	//EAmmoType AmmoType;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Weapon")
+	EAmmoType AmmoType;
 
 	// Does this weapon consume ammo when fired?
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Weapon")

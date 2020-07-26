@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Infinity/Items/EquipableEnums.h"
+#include "Infinity/Weapons/WeaponEnums.h"
 #include "InfinityCharacter.generated.h"
 
 class UInfinityMovementComponent;
@@ -11,6 +12,30 @@ class UCameraComponent;
 class AItemBase;
 class AItemEquipable;
 class UPowerUp;
+
+USTRUCT(BlueprintType)
+struct FStoredAmmo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	EAmmoType AmmoType;
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 Ammo;
+
+	FStoredAmmo()
+	{
+		AmmoType = EAmmoType::AT_None;
+		Ammo = 0;
+	}
+
+	FStoredAmmo(EAmmoType Type, int32 StoreAmount)
+	{
+		AmmoType = Type;
+		Ammo = StoreAmount;
+	}
+};
 
 UCLASS()
 class INFINITY_API AInfinityCharacter : public ACharacter
@@ -109,6 +134,18 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Character")
 	bool AllowWeaponSwapping() const;
 
+	// Adds additional ammo for the specified ammo type.
+	UFUNCTION(BlueprintCallable, Category = "Character")
+	void GiveAmmo(EAmmoType AmmoType, int32 AmountToGive);
+
+	// Stores whatever ammo we have for the specifed ammo type. (Note, this will OVERWRITE the stored ammo, if you wish to add ammo. Please use GiveAmmo())
+	UFUNCTION(BlueprintCallable, Category = "Character")
+	void StoreAmmo(EAmmoType AmmoType, int32 AmountToStore);
+
+	// Returns the amount of ammo we have for the specifed type.
+	UFUNCTION(BlueprintPure, Category = "Character")
+	int32 GetAmmoAmountForType(EAmmoType AmmoType) const;
+
 protected:
 
 	// This character damage multiplier (server only)
@@ -205,8 +242,9 @@ protected:
 	UFUNCTION()
 	void OnRep_IsDying();
 
-	//UPROPERTY(Replicated, BlueprintReadOnly, Category = "Character")
-	//TArray<FStoredAmmo> StoredAmmo;
+	// The stored ammo for this character
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Character")
+	TArray<FStoredAmmo> StoredAmmo;
 
 	// Destroys all inventory items. Must be called on Authority
 	void DestroyInventoryItems();
