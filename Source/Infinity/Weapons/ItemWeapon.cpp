@@ -64,6 +64,11 @@ bool AItemWeapon::AllowFire() const
 		return false;
 	}
 
+	if (IsSwappingTo())
+	{
+		return false;
+	}
+
 	return true;
 }
 

@@ -281,6 +281,11 @@ void AInfinityCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AInfinityCharacter::OnFirePressed);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AInfinityCharacter::OnFireReleased);
 
+	PlayerInputComponent->BindAction("SelectWeaponSlotShotgun", IE_Pressed, this, &AInfinityCharacter::OnSelectWeaponSlotShotgun);
+	PlayerInputComponent->BindAction("SelectWeaponSlotBullet", IE_Pressed, this, &AInfinityCharacter::OnSelectWeaponSlotBullet);
+	PlayerInputComponent->BindAction("SelectWeaponSlotEnergy", IE_Pressed, this, &AInfinityCharacter::OnSelectWeaponSlotEnergy);
+	PlayerInputComponent->BindAction("SelectWeaponSlotExplosive", IE_Pressed, this, &AInfinityCharacter::OnSelectWeaponSlotExplosive);
+
 	PlayerInputComponent->BindAction("SelectInventoryPrevious", IE_Pressed, this, &AInfinityCharacter::OnSelectInventoryPrevious);
 	PlayerInputComponent->BindAction("SelectInventoryNext", IE_Pressed, this, &AInfinityCharacter::OnSelectInventoryNext);
 }
@@ -351,11 +356,52 @@ void AInfinityCharacter::OnFireReleased()
 	}
 }
 
+void AInfinityCharacter::OnSelectWeaponSlotShotgun()
+{
+	const auto Item = GetNextItemInSlot(EItemSlot::IS_Shotgun, CurrentEquipable, true);
+	if (Item && Item != CurrentEquipable)
+	{
+		EquipItem(Item);
+	}
+}
+
+void AInfinityCharacter::OnSelectWeaponSlotBullet()
+{
+	const auto Item = GetNextItemInSlot(EItemSlot::IS_Bullet, CurrentEquipable, true);
+	if (Item && Item != CurrentEquipable)
+	{
+		EquipItem(Item);
+	}
+}
+
+void AInfinityCharacter::OnSelectWeaponSlotEnergy()
+{
+	const auto Item = GetNextItemInSlot(EItemSlot::IS_Energy, CurrentEquipable, true);
+	if (Item && Item != CurrentEquipable)
+	{
+		EquipItem(Item);
+	}
+}
+
+void AInfinityCharacter::OnSelectWeaponSlotExplosive()
+{
+	const auto Item = GetNextItemInSlot(EItemSlot::IS_Explosive, CurrentEquipable, true);
+	if (Item && Item != CurrentEquipable)
+	{
+		EquipItem(Item);
+	}
+}
+
 void AInfinityCharacter::OnSelectInventoryPrevious()
 {
 	if (!CurrentEquipable)
 	{
 		EquipFirstAvailableInventoryItem();
+		return;
+	}
+
+	if (!AllowWeaponSwapping())
+	{
 		return;
 	}
 
@@ -400,6 +446,11 @@ void AInfinityCharacter::OnSelectInventoryNext()
 	if (!CurrentEquipable)
 	{
 		EquipFirstAvailableInventoryItem();
+		return;
+	}
+
+	if (!AllowWeaponSwapping())
+	{
 		return;
 	}
 
@@ -784,4 +835,9 @@ void AInfinityCharacter::UpdateCharacterDamageMultiplier(float DamageMultipler)
 float AInfinityCharacter::GetDamageMultipliers() const
 {
 	return CharacterDamageMultiplier;
+}
+
+bool AInfinityCharacter::AllowWeaponSwapping() const
+{
+	return true;
 }

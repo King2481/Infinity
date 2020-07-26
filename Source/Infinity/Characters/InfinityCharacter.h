@@ -105,6 +105,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Character")
 	float GetDamageMultipliers() const;
 
+	// Checks to see if we are allowed to weapon swap
+	UFUNCTION(BlueprintPure, Category = "Character")
+	bool AllowWeaponSwapping() const;
+
 protected:
 
 	// This character damage multiplier (server only)
@@ -264,6 +268,11 @@ protected:
 
 	void OnFirePressed();
 	void OnFireReleased();
+
+	void OnSelectWeaponSlotShotgun();
+	void OnSelectWeaponSlotBullet();
+	void OnSelectWeaponSlotEnergy();
+	void OnSelectWeaponSlotExplosive();
 
 	void OnSelectInventoryPrevious();
 	void OnSelectInventoryNext();

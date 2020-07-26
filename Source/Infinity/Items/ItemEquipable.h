@@ -52,14 +52,18 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Item")
 	EItemSlot ItemSlot;
 
-protected:
-
 	// Set the equipable state.
 	void SetEquipableState(EEquipableState NewState);
 
 	// Returns the current equipable state of the weapon, will return simulated equippable state on remote clients.
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Item")
+	UFUNCTION(BlueprintPure, Category = "Item")
 	EEquipableState GetEquipableState() const;
+
+	// Checks to see if we are currently swapping to this weapon.
+	UFUNCTION(BlueprintPure, Category = "Item")
+	bool IsSwappingTo() const;
+
+protected:
 
 	// Variable replication setup.
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -83,5 +87,15 @@ protected:
 
 	// Called when Unequipped
 	virtual void OnUnequipped();
+
+	// Called when we have finished swapping to this item.
+	void OnSwapToFinished();
+
+	// How muchg time does it take to swap to this weapon?
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Item")
+	float SwapToTime;
+
+	UPROPERTY()
+	FTimerHandle SwapToTimerHandle;
 	
 };

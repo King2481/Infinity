@@ -10,6 +10,8 @@ AItemEquipable::AItemEquipable()
 	ItemSlot = EItemSlot::IS_Misc;
 	EquipableState = EEquipableState::Unequipped;
 	SimulatedEquipableState = EEquipableState::Unequipped;
+
+	SwapToTime = 1.5f;
 }
 
 void AItemEquipable::InitItem(AInfinityCharacter* NewOwner)
@@ -27,6 +29,11 @@ void AItemEquipable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 }
 
 void AItemEquipable::Equip()
+{
+	GetWorldTimerManager().SetTimer(SwapToTimerHandle, this, &AItemEquipable::OnSwapToFinished, SwapToTime);
+}
+
+void AItemEquipable::OnSwapToFinished()
 {
 	SetEquipableState(EEquipableState::Equipped);
 }
@@ -118,4 +125,9 @@ void AItemEquipable::OnEquipableStateChanged()
 bool AItemEquipable::CanEquip() const
 {
 	return true;
+}
+
+bool AItemEquipable::IsSwappingTo() const
+{
+	return GetEquipableState() == EEquipableState::Equipping;
 }
