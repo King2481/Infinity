@@ -49,7 +49,7 @@ AInfinityCharacter::AInfinityCharacter(const FObjectInitializer& ObjectInitializ
 	ArmMesh1P->bOnlyOwnerSee = true;
 
 	WeaponMesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh1P"));
-	WeaponMesh1P->SetupAttachment(ArmMesh1P);
+	WeaponMesh1P->SetupAttachment(ArmMesh1P, FName("WeaponGripPoint"));
 	WeaponMesh1P->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
 	WeaponMesh1P->CastShadow = false;
 	WeaponMesh1P->bOnlyOwnerSee = true;
