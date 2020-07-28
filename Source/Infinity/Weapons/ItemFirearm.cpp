@@ -4,12 +4,14 @@
 #include "ItemFirearm.h"
 #include "Infinity/Characters/InfinityCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "WeaponStatics.h"
 #include "Infinity/GameModes/InfinityGameModeBase.h"
 #include "Infinity/Weapons/Projectiles/ProjectileBase.h"
 #include "Infinity/Engine/GameTraceChannels.h"
+#include "Infinity/FX/SurfaceReaction.h"
 
 #if !UE_BUILD_SHIPPING
 static TAutoConsoleVariable<int32> CvarShowWeaponTraces(TEXT("DebugWeaponTraces"), 0, TEXT("Visualise Firearm Traces"));
@@ -371,10 +373,37 @@ void AItemFirearm::ConfirmedFirearmHit(const FStoredFirearmHit& Hit)
 void AItemFirearm::MulticastSpawnFXForHits_Implementation(const TArray<FStoredFirearmHit>& Hits)
 {
 #if !UE_SERVER
-	// Dont allow for recursion, this is for remote clients only.
-	if (HasAuthority() || IsPawnOwnerLocallyControlled())
+	if (!SurfaceReaction)
 	{
 		return;
+	}
+
+	const auto SurfaceReactionInst = SurfaceReaction.GetDefaultObject();
+	if (!SurfaceReactionInst)
+	{
+		return;
+	}
+	
+	for (auto& Hit : Hits)
+	{
+		if (!Hit.HitActor.IsValid())
+		{
+			continue;
+		}
+
+		// TODO: This could be optimized by having sound cutoff distance / not rendering particles for things that are not being rendered.
+
+		FSurfaceReactionInfo Info = SurfaceReactionInst->GetSurfaceReactionFromHit(Hit.PhysMaterial);
+			
+		if (Info.ReactionSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, Info.ReactionSound, Hit.ImpactPoint);
+		}
+
+		if (Info.ReactionEffect)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Info.ReactionEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+		}
 	}
 #endif
 }

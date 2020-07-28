@@ -91,6 +91,6 @@ protected:
 
 	// What surface reaction does this weapon uses when it hits something.
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Weapon")
-	USurfaceReaction* SurfaceReaction;
+	TSubclassOf<USurfaceReaction> SurfaceReaction;
 	
 };
