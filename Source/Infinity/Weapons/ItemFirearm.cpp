@@ -165,9 +165,27 @@ void AItemFirearm::FireBullets()
 				const FVector ShootDir = WeaponRandomStream.VRandCone(AimDir, ConeHalfAngle, ConeHalfAngle);
 				const FVector EndTrace = StartTrace + (ShootDir * FirearmConfig.Range);
 
-				const FHitResult Impact = WeaponTrace(StartTrace, EndTrace);
-
-				StoredHits.Add(FStoredFirearmHit(Impact.Actor, Impact.PhysMaterial, StartTrace, Impact.ImpactPoint, Impact.ImpactNormal, ShootDir));
+				if (FirearmConfig.bMultiLineTrace)
+				{
+					uint8 CurrentDepth = 0;
+					TArray<FHitResult> ImpactMulti = WeaponTraceMulti(StartTrace, EndTrace);
+					
+					for (auto& Impact : ImpactMulti)
+					{
+						StoredHits.Add(FStoredFirearmHit(Impact.Actor, Impact.PhysMaterial, StartTrace, Impact.ImpactPoint, Impact.ImpactNormal, ShootDir));
+						
+						++CurrentDepth;
+						if (CurrentDepth >= FirearmConfig.MaxAmountOfMultiLineHits)
+						{
+							break;
+						}
+					}
+				}
+				else
+				{
+					const FHitResult Impact = WeaponTrace(StartTrace, EndTrace);
+					StoredHits.Add(FStoredFirearmHit(Impact.Actor, Impact.PhysMaterial, StartTrace, Impact.ImpactPoint, Impact.ImpactNormal, ShootDir));
+				}
 			}
 
 			ProcessInstantHits(StoredHits);
@@ -279,6 +297,36 @@ FHitResult AItemFirearm::WeaponTrace(const FVector& StartTrace, const FVector& E
 #endif
 
 	return Hit;
+}
+
+TArray<FHitResult> AItemFirearm::WeaponTraceMulti(const FVector& StartTrace, const FVector& EndTrace) const
+{
+	// Perform trace to retrieve hit info
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(PawnOwner);
+	Params.bTraceComplex = false;
+	Params.bReturnPhysicalMaterial = true;
+
+	TArray<FHitResult> Hits;
+	GetWorld()->LineTraceMultiByChannel(Hits, StartTrace, EndTrace, ECC_Weapon, Params);
+
+#if !UE_BUILD_SHIPPING
+	if (CvarShowWeaponTraces.GetValueOnGameThread() > 0)
+	{
+		UKismetSystemLibrary::DrawDebugLine(GetWorld(), StartTrace, EndTrace, FLinearColor::Red, 1.f, 1.f);
+
+		for (auto& Hit : Hits)
+		{
+			if (Hit.GetActor())
+			{
+				UKismetSystemLibrary::DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 25.f, 12, FLinearColor::Yellow, 1.f, 1.f);
+			}
+		}
+	}
+#endif
+
+	return Hits;
 }
 
 void AItemFirearm::ProcessInstantHits(const TArray<FStoredFirearmHit>& Hits)

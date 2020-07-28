@@ -66,6 +66,14 @@ struct FFirearmConfig
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	uint8 MaxBurst;
 
+	// Does this weapon allow for multi-line traces instead of single? (Do not reconmend doing if you plan on having weapons that fire multiple traces)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bMultiLineTrace;
+
+	// If multi-line trace, how many objects can this weapon shoot through before it stops storing hits?
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "bMultiLineTrace"))
+	uint8 MaxAmountOfMultiLineHits;
+
 	FFirearmConfig()
 	{
 		// General
@@ -77,6 +85,8 @@ struct FFirearmConfig
 		bRevRateOfFire = false;
 		MaxBurst = 3;
 		CycleTime = 1.f;
+		bMultiLineTrace = false;
+		MaxAmountOfMultiLineHits = 3;
 	}
 };
 
@@ -225,6 +235,9 @@ protected:
 
 	// Actual trace for the firearm
 	FHitResult WeaponTrace(const FVector& StartTrace, const FVector& EndTrace) const;
+
+	// Actual trace for the firearm (Multi-line)
+	TArray<FHitResult> WeaponTraceMulti(const FVector& StartTrace, const FVector& EndTrace) const;
 
 	// Process whatever we just hit.
 	void ProcessInstantHits(const TArray<FStoredFirearmHit>& Hits);
