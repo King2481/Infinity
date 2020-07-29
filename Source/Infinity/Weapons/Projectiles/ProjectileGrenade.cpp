@@ -89,13 +89,24 @@ void AProjectileGrenade::HandleImpact(const FHitResult& Impact)
 
 	if (HasAuthority())
 	{
-		if (Impact.GetActor() && DirectHitActorsThatCauseBiggerExplosion.Contains(Impact.GetActor()->GetClass()))
+		bool bContextualImpact = false;
+
+		if (DirectHitActorsThatCauseImmediateExplosion.Num() > 0 && Impact.GetActor())
 		{
-			ExplodeAt(GetActorLocation(), DirectHitExplosionConfig);
+			for (auto& Class : DirectHitActorsThatCauseImmediateExplosion)
+			{
+				if (Class && Impact.GetActor()->GetClass()->IsChildOf(Class))
+				{
+					bContextualImpact = true;
+					break;
+				}
+			}
 		}
-		else if (bImpactGrenade)
+
+		if (bImpactGrenade || bContextualImpact && ProjectileMovement->Velocity.Size() > 10.f)
 		{
 			Explode();
+			return;
 		}
 	}
 }

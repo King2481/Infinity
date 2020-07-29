@@ -93,10 +93,7 @@ protected:
 	FExplosionConfig ExplosionConfig;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Grenade")
-	TArray<TSubclassOf<AActor>> DirectHitActorsThatCauseBiggerExplosion;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Grenade")
-	FExplosionConfig DirectHitExplosionConfig;
+	TArray<TSubclassOf<AActor>> DirectHitActorsThatCauseImmediateExplosion;
 
 	// Do we explode on impact?
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Grenade")
@@ -107,5 +104,5 @@ protected:
 	float ExplosionTime;
 
 	virtual void HandleImpact(const FHitResult& Impact) override;
-	
+
 };

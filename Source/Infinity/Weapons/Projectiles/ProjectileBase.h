@@ -56,7 +56,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<UDamageType> DirectDamageTypeClass;
 
-	// The maximum amount of bounces this projectile is allowed to have before destroying itself (assuming bDestroyOnHit is false).
+	// The maximum amount of bounces this projectile is allowed to have before destroying itself (assuming bDestroyOnHit is false), if 0, this means for an unlimited amount of bounces.
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	uint8 MaxAmountOfBounces;
 
@@ -74,7 +74,7 @@ protected:
 	virtual void HandleImpact(const FHitResult& Impact);
 
 	// What surface reaction does this weapon uses when it hits something.
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Weapon")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Projectile")
 	USurfaceReaction* SurfaceReaction;
 
 };

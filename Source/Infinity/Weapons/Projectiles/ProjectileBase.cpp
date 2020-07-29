@@ -45,8 +45,8 @@ void AProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// Projectiles should be removed from the world if it hasn't hit anything in 15 seconds.
-	SetLifeSpan(15.f);
+	// Projectiles should be removed from the world if it hasn't hit anything in 8 seconds.
+	SetLifeSpan(8.f);
 }
 
 void AProjectileBase::PostInitializeComponents()
@@ -109,7 +109,7 @@ void AProjectileBase::HandleImpact(const FHitResult& Impact)
 		{
 			Destroy();
 		}
-		else if (ProjectileMovement && ProjectileMovement->bShouldBounce)
+		else if (ProjectileMovement && ProjectileMovement->bShouldBounce && MaxAmountOfBounces > 0)
 		{
 			++CurrentAmountOfBounces;
 			if (CurrentAmountOfBounces >= MaxAmountOfBounces)

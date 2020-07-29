@@ -321,5 +321,4 @@ protected:
 	// What is the muzzle socket name for this weapon?
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Firearm")
 	FName MuzzleSocketName;
-	
 };
