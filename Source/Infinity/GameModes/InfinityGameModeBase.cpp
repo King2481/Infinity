@@ -2,7 +2,7 @@
 
 
 #include "InfinityGameModeBase.h"
-
+#include "GameAnnouncementComponent.h"
 #include "Infinity/Gamemodes/InfinityGameModeBase.h"
 #include "Infinity/Characters/InfinityCharacter.h"
 #include "Infinity/Gamemodes/InfinityGameState.h"
@@ -12,8 +12,11 @@
 #include "UObject/ConstructorHelpers.h" 
 #include "Kismet/GameplayStatics.h"
 
+
 AInfinityGameModeBase::AInfinityGameModeBase()
 {
+	GameAnnouncement = CreateDefaultSubobject<UGameAnnouncementComponent>(TEXT("Game Announcements"));
+
 	static ConstructorHelpers::FClassFinder<AInfinityCharacter>BPPawnClass(TEXT("/Game/Game/Actors/Characters/BP_Character_Player"));
 	DefaultPawnClass = BPPawnClass.Class;
 
@@ -82,6 +85,21 @@ void AInfinityGameModeBase::OnCharacterKilled(AInfinityCharacter* Victim, float 
 	if (VictimPS && KillerPS)
 	{
 		UE_LOG(LogGameMode, VeryVerbose, TEXT("%s Was killed by %s"), *VictimPS->GetPlayerName(), *KillerPS->GetPlayerName());
+	}
+
+	if (KillerPS)
+	{
+		KillerPS->ScoreKill();
+	}
+
+	if (VictimPS)
+	{
+		VictimPS->ScoreDeath();
+	}
+
+	if (GameAnnouncement)
+	{
+		GameAnnouncement->OnCharacterKilled(Victim, VictimPS, KillerPS, EventInstigator);
 	}
 }
 

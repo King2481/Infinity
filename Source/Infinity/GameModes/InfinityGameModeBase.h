@@ -7,6 +7,7 @@
 #include "InfinityGameModeBase.generated.h"
 
 class AInfinityCharacter;
+class UGameAnnouncementComponent;
 
 /**
  * 
@@ -39,6 +40,10 @@ public:
 	bool ShouldValidateClientSideHits() const;
 
 protected:
+
+	// Game Announcement
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gamemode")
+	UGameAnnouncementComponent* GameAnnouncement;
 
 	// Override handling of match state changing to accomodate our custom states 
 	virtual void SetMatchState(FName NewState) override;
