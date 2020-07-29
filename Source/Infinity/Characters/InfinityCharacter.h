@@ -146,6 +146,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Character")
 	int32 GetAmmoAmountForType(EAmmoType AmmoType) const;
 
+	// Changes the FOV for this character (does not blend)
+	UFUNCTION(BlueprintCallable, Category = "Character")
+	void ChangeFOV(const float NewFOV);
+
 protected:
 
 	// This character damage multiplier (server only)
@@ -306,6 +310,9 @@ protected:
 
 	void OnFirePressed();
 	void OnFireReleased();
+
+	void OnAltFirePressed();
+	void OnAltFireReleased();
 
 	void OnSelectWeaponSlotShotgun();
 	void OnSelectWeaponSlotBullet();

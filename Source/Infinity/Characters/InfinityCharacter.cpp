@@ -282,6 +282,9 @@ void AInfinityCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AInfinityCharacter::OnFirePressed);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AInfinityCharacter::OnFireReleased);
 
+	PlayerInputComponent->BindAction("AltFire", IE_Pressed, this, &AInfinityCharacter::OnAltFirePressed);
+	PlayerInputComponent->BindAction("AltFire", IE_Released, this, &AInfinityCharacter::OnAltFireReleased);
+
 	PlayerInputComponent->BindAction("SelectWeaponSlotShotgun", IE_Pressed, this, &AInfinityCharacter::OnSelectWeaponSlotShotgun);
 	PlayerInputComponent->BindAction("SelectWeaponSlotBullet", IE_Pressed, this, &AInfinityCharacter::OnSelectWeaponSlotBullet);
 	PlayerInputComponent->BindAction("SelectWeaponSlotEnergy", IE_Pressed, this, &AInfinityCharacter::OnSelectWeaponSlotEnergy);
@@ -354,6 +357,22 @@ void AInfinityCharacter::OnFireReleased()
 	if (CurrentEquipable)
 	{
 		CurrentEquipable->OnFireReleased();
+	}
+}
+
+void AInfinityCharacter::OnAltFirePressed()
+{
+	if (CurrentEquipable)
+	{
+		CurrentEquipable->OnAltFirePressed();
+	}
+}
+
+void AInfinityCharacter::OnAltFireReleased()
+{
+	if (CurrentEquipable)
+	{
+		CurrentEquipable->OnAltFireReleased();
 	}
 }
 
@@ -906,4 +925,12 @@ int32 AInfinityCharacter::GetAmmoAmountForType(EAmmoType AmmoType) const
 	}
 
 	return Amount;
+}
+
+void AInfinityCharacter::ChangeFOV(const float NewFOV)
+{
+	if (CameraComponent)
+	{
+		CameraComponent->SetFieldOfView(NewFOV);
+	}
 }

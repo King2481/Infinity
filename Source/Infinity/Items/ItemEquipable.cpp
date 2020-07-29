@@ -14,6 +14,16 @@ AItemEquipable::AItemEquipable()
 	SwapToTime = 1.5f;
 }
 
+void AItemEquipable::OnAltFirePressed()
+{
+	BlueprintOnAltFirePressed();
+}
+
+void AItemEquipable::OnAltFireReleased()
+{
+	BlueprintOnAltFireReleased();
+}
+
 void AItemEquipable::InitItem(AInfinityCharacter* NewOwner)
 {
 	Super::InitItem(NewOwner);

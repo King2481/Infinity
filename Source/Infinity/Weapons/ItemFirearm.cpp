@@ -165,7 +165,7 @@ void AItemFirearm::FireBullets()
 				const FVector ShootDir = WeaponRandomStream.VRandCone(AimDir, ConeHalfAngle, ConeHalfAngle);
 				const FVector EndTrace = StartTrace + (ShootDir * FirearmConfig.Range);
 
-				if (FirearmConfig.bMultiLineTrace)
+				if ( false /*FirearmConfig.bMultiLineTrace*/) // This doesn't work as well as I thought it would. Setting traces to overlap causes issues with normal weapons
 				{
 					uint8 CurrentDepth = 0;
 					TArray<FHitResult> ImpactMulti = WeaponTraceMulti(StartTrace, EndTrace);

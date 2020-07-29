@@ -36,6 +36,20 @@ public:
 	// Called when we release the fire button
 	virtual void OnFireReleased() { };
 
+	// Called when we press the alt fire button
+	virtual void OnAltFirePressed();
+
+	// Called when we release the alt fire button
+	virtual void OnAltFireReleased();
+
+	// Blueprint event for OnAltFirePressed()
+	UFUNCTION(BlueprintImplementableEvent, Category = "Equipable")
+	void BlueprintOnAltFirePressed();
+
+	// Blueprint event for OnAltFireReleased()
+	UFUNCTION(BlueprintImplementableEvent, Category = "Equipable")
+	void BlueprintOnAltFireReleased();
+
 	// Called when we equip
 	virtual void Equip();
 
