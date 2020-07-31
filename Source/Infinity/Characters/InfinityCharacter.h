@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "Infinity/Items/EquipableEnums.h"
 #include "Infinity/Weapons/WeaponEnums.h"
+#include "Infinity/Factions/TeamInterface.h"
 #include "InfinityCharacter.generated.h"
 
 class UInfinityMovementComponent;
@@ -38,7 +39,7 @@ struct FStoredAmmo
 };
 
 UCLASS()
-class INFINITY_API AInfinityCharacter : public ACharacter
+class INFINITY_API AInfinityCharacter : public ACharacter, public ITeamInterface
 {
 	GENERATED_BODY()
 
@@ -150,7 +151,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	void ChangeFOV(const float NewFOV);
 
+	virtual uint8 GetTeamId() const override;
+
 protected:
+
+	// What team does this character belong to?
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_TeamId, BlueprintReadOnly, Category = "Character")
+	uint8 TeamId;
+
+	UFUNCTION()
+	void OnRep_TeamId();
 
 	// This character damage multiplier (server only)
 	UPROPERTY(BlueprintReadOnly, Category = "Character")

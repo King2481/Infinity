@@ -39,6 +39,8 @@ AInfinityCharacter::AInfinityCharacter(const FObjectInitializer& ObjectInitializ
 	
 	bIsSliding = false;
 
+	TeamId = ITeamInterface::InvalidId; // TODO: Need to apply this to the PlayerState and PlayerController as well
+
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(RootComponent);
 	CameraComponent->bUsePawnControlRotation = true;
@@ -255,6 +257,11 @@ void AInfinityCharacter::OnRep_PowerUps()
 }
 
 void AInfinityCharacter::OnRep_IsSliding()
+{
+
+}
+
+void AInfinityCharacter::OnRep_TeamId()
 {
 
 }
@@ -934,3 +941,9 @@ void AInfinityCharacter::ChangeFOV(const float NewFOV)
 		CameraComponent->SetFieldOfView(NewFOV);
 	}
 }
+
+uint8 AInfinityCharacter::GetTeamId() const
+{
+	return TeamId;
+}
+
