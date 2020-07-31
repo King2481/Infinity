@@ -39,6 +39,8 @@ public:
 	// Gamemode rulling checking to see if we should confirm clientside hits.
 	bool ShouldValidateClientSideHits() const;
 
+	virtual void HandleMatchHasStarted() override;
+
 protected:
 
 	// Game Announcement
@@ -69,5 +71,8 @@ protected:
 
 	// Password required to connect to the server 
 	FString ServerPassword;
-	
+
+	// How long does this game mode last, in seconds?
+	UPROPERTY(Config, BlueprintReadOnly, Category = "Gamemode")
+	int32 RoundTimeLimit;
 };

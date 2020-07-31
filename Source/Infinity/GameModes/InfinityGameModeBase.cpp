@@ -30,11 +30,14 @@ AInfinityGameModeBase::AInfinityGameModeBase()
 	UniversalDamageMultiplayer = 1.f;
 	SelfDamageMultiplier = 0.25f;
 	bValidateClientSideHits = true;
+	RoundTimeLimit = 480; // 8 Minutes for all rounds by default.
 }
 
 void AInfinityGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
+
+	RoundTimeLimit = UGameplayStatics::GetIntOption(Options, TEXT("RoundTimeLimit"), RoundTimeLimit);
 
 	// Password
 	ServerPassword = UGameplayStatics::ParseOption(Options, TEXT("Password"));
@@ -136,6 +139,18 @@ void AInfinityGameModeBase::SetMatchState(FName NewState)
 void AInfinityGameModeBase::CallMatchStateChangeNotify()
 {
 	HandleMatchHasStarted();
+}
+
+void AInfinityGameModeBase::HandleMatchHasStarted()
+{
+	Super::HandleMatchHasStarted();
+
+	const auto GS = GetGameState<AInfinityGameState>();
+	if (GS)
+	{
+		GS->SetRoundTimer(RoundTimeLimit);
+	}
+	
 }
 
 bool AInfinityGameModeBase::IsPasswordProtected() const
