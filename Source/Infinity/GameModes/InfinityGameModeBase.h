@@ -7,7 +7,20 @@
 #include "InfinityGameModeBase.generated.h"
 
 class AInfinityCharacter;
+class AInfinityPlayerState;
 class UGameAnnouncementComponent;
+
+/**
+* Additional match states
+*/
+namespace MatchState
+{
+	/* round has ended and a winner (or draw) has been declared */
+	extern const FName RoundWon;
+
+	/*The game is officially "over".*/
+	extern const FName GameOver;
+}
 
 /**
  * 
@@ -40,6 +53,13 @@ public:
 	bool ShouldValidateClientSideHits() const;
 
 	virtual void HandleMatchHasStarted() override;
+
+	// Called when we have "won" the Gamemode and need to handle it.
+	virtual void HandleRoundWon();
+
+	void OnGameOverStart();
+
+	virtual void HandleGameOver();
 
 protected:
 
@@ -75,4 +95,12 @@ protected:
 	// How long does this game mode last, in seconds?
 	UPROPERTY(Config, BlueprintReadOnly, Category = "Gamemode")
 	int32 RoundTimeLimit;
+
+	// This sole winner of this gamemode.
+	AInfinityPlayerState* WinningPlayerState;
+
+	// The winning team of this gamemode
+	uint8 WinningTeamId;
+
+	FTimerHandle GameOverTimerHandle;
 };

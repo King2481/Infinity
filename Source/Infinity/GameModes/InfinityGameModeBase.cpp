@@ -12,6 +12,11 @@
 #include "UObject/ConstructorHelpers.h" 
 #include "Kismet/GameplayStatics.h"
 
+namespace MatchState
+{
+	const FName RoundWon = FName(TEXT("RoundWon"));
+	const FName GameOver = FName(TEXT("GameOver"));
+}
 
 AInfinityGameModeBase::AInfinityGameModeBase()
 {
@@ -31,6 +36,8 @@ AInfinityGameModeBase::AInfinityGameModeBase()
 	SelfDamageMultiplier = 0.25f;
 	bValidateClientSideHits = true;
 	RoundTimeLimit = 480; // 8 Minutes for all rounds by default.
+	WinningPlayerState = nullptr;
+	WinningTeamId = 255;
 }
 
 void AInfinityGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
@@ -138,7 +145,18 @@ void AInfinityGameModeBase::SetMatchState(FName NewState)
 
 void AInfinityGameModeBase::CallMatchStateChangeNotify()
 {
-	HandleMatchHasStarted();
+	if (MatchState == MatchState::RoundWon)
+	{
+		HandleRoundWon();
+	}
+	else if (MatchState == MatchState::GameOver)
+	{
+		HandleGameOver();
+	}
+	else
+	{
+		HandleMatchHasStarted();
+	}
 }
 
 void AInfinityGameModeBase::HandleMatchHasStarted()
@@ -150,7 +168,34 @@ void AInfinityGameModeBase::HandleMatchHasStarted()
 	{
 		GS->SetRoundTimer(RoundTimeLimit);
 	}
-	
+}
+
+void AInfinityGameModeBase::HandleRoundWon()
+{
+	// Inform all connected players that we have won the round.
+	for (FConstControllerIterator Iterator = GetWorld()->GetControllerIterator(); Iterator; ++Iterator)
+	{
+		auto Controller = Cast<AInfinityPlayerController>(Iterator->Get());
+		if (!Controller)
+		{
+			continue;
+		}
+
+		Controller->OnRoundWon(WinningPlayerState, WinningTeamId);
+	}
+
+	GetWorldTimerManager().SetTimer(GameOverTimerHandle, this, &AInfinityGameModeBase::OnGameOverStart, 10.f);
+}
+
+void AInfinityGameModeBase::OnGameOverStart()
+{
+	SetMatchState(MatchState::GameOver);
+}
+
+void AInfinityGameModeBase::HandleGameOver()
+{
+	// Just restart the game for now.
+	RestartGame();
 }
 
 bool AInfinityGameModeBase::IsPasswordProtected() const

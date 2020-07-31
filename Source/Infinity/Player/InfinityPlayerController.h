@@ -10,6 +10,8 @@ class AInfinityPlayerState;
 class UUserWidget;
 class USoundBase;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnRoundWonDelegate, AInfinityPlayerState*, WinningPlayerState, uint8, WinningTeam);
+
 /**
  * 
  */
@@ -46,6 +48,27 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientPlaySound2D(USoundBase* SoundToPlay);
 	void ClientPlaySound2D_Implementation(USoundBase* SoundToPlay);
+
+	/* Called when a round has been won from the gamemode.
+	 * If single based, there will be a winning player state,
+	 * otherwise, a winning team. 
+	 */
+	void OnRoundWon(AInfinityPlayerState* WinningPlayerState, uint8 WinningTeam);
+
+	// Client version of OnRoundWon()
+	UFUNCTION(Client, Reliable)
+	void ClientOnRoundWon(AInfinityPlayerState* WinningPlayerState, uint8 WinningTeam);
+	void ClientOnRoundWon_Implementation(AInfinityPlayerState* WinningPlayerState, uint8 WinningTeam);
+
+	// Delegate for when a round is won.
+	UPROPERTY(BlueprintAssignable)
+	FOnRoundWonDelegate OnRoundWonDelegate;
+
+	// Respawns the player, if applicable.
+	void RespawnPlayer();
+
+	// Queues a respawn with a delay.
+	void QueueRespawnDelay(float Delay);
 
 protected:
 
@@ -92,4 +115,10 @@ protected:
 
 	// Updates the players input mode
 	void UpdateInputMode();
+
+	UPROPERTY()
+	FTimerHandle DelayRespawnTimerHandle;
+
+	// Called when we want to eject to spectator.
+	void OnQueueRespawnDelayFinished();
 };

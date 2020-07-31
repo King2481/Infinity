@@ -208,3 +208,46 @@ void AInfinityPlayerController::ClientPlaySound2D_Implementation(USoundBase* Sou
 		UGameplayStatics::PlaySound2D(this, SoundToPlay);
 	}
 }
+
+void AInfinityPlayerController::RespawnPlayer()
+{
+	if (GetPawn())
+	{
+		return;
+	}
+
+	// TODO: Move this to a gamemode function?
+	auto GM = GetWorld()->GetAuthGameMode<AInfinityGameModeBase>();
+	if (GM)
+	{
+		AActor* PlayerStart = GM->ChoosePlayerStart(this);
+		if (PlayerStart)
+		{
+			GM->RestartPlayerAtPlayerStart(this, PlayerStart);
+		}
+	}
+}
+
+void AInfinityPlayerController::QueueRespawnDelay(float Delay)
+{
+	GetWorldTimerManager().SetTimer(DelayRespawnTimerHandle, this, &AInfinityPlayerController::OnQueueRespawnDelayFinished, Delay);
+}
+
+void AInfinityPlayerController::OnQueueRespawnDelayFinished()
+{
+	GetWorldTimerManager().ClearTimer(DelayRespawnTimerHandle);
+	RespawnPlayer();
+}
+
+void AInfinityPlayerController::OnRoundWon(AInfinityPlayerState* WinningPlayerState, uint8 WinningTeam)
+{
+	ClientOnRoundWon(WinningPlayerState, WinningTeam);
+}
+
+void AInfinityPlayerController::ClientOnRoundWon_Implementation(AInfinityPlayerState* WinningPlayerState, uint8 WinningTeam)
+{
+	SetIgnoreMoveInput(true);
+	SetIgnoreLookInput(true);
+
+	OnRoundWonDelegate.Broadcast(WinningPlayerState, WinningTeam);
+}

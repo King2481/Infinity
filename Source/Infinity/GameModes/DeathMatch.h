@@ -17,5 +17,7 @@ class INFINITY_API ADeathMatch : public AInfinityGameModeBase
 public:
 
 	ADeathMatch();
+
+	virtual void OnCharacterKilled(AInfinityCharacter* Victim, float KillingDamage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
 };
