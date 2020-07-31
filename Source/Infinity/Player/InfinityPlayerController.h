@@ -8,6 +8,7 @@
 
 class AInfinityPlayerState;
 class UUserWidget;
+class USoundBase;
 
 /**
  * 
@@ -41,6 +42,10 @@ public:
 
 	// Called when the chatbox has closed.
 	void OnChatInputEnded();
+
+	UFUNCTION(Client, Reliable)
+	void ClientPlaySound2D(USoundBase* SoundToPlay);
+	void ClientPlaySound2D_Implementation(USoundBase* SoundToPlay);
 
 protected:
 

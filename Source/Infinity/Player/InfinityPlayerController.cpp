@@ -5,6 +5,7 @@
 #include "InfinityPlayerState.h"
 #include "Infinity/HUD/InfinityHUD.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 AInfinityPlayerController::AInfinityPlayerController()
 {
@@ -198,4 +199,12 @@ void AInfinityPlayerController::UpdateInputMode()
 
 	SetInputMode(FInputModeGameOnly());
 	bShowMouseCursor = false;
+}
+
+void AInfinityPlayerController::ClientPlaySound2D_Implementation(USoundBase* SoundToPlay)
+{
+	if (SoundToPlay)
+	{
+		UGameplayStatics::PlaySound2D(this, SoundToPlay);
+	}
 }
