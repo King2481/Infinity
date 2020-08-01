@@ -256,6 +256,11 @@ protected:
 	UFUNCTION()
 	void OnRep_IsDying();
 
+	/* Reliably broadcasts a death event to clients, used to apply ragdoll forces */
+	UFUNCTION(NetMulticast, Reliable)
+	void BroadcastDeath(const FVector_NetQuantize& HitPosition, const FVector_NetQuantize& DamageForce, const FName& BoneName);
+	void BroadcastDeath_Implementation(const FVector_NetQuantize& HitPosition, const FVector_NetQuantize& DamageForce, const FName& BoneName);
+
 	// The stored ammo for this character
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Character")
 	TArray<FStoredAmmo> StoredAmmo;

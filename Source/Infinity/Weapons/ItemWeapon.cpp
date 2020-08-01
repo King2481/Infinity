@@ -102,7 +102,13 @@ void AItemWeapon::DealDamage(const FHitResult& Impact, float Damage, const FVect
 		return;
 	}
 
-	UGameplayStatics::ApplyDamage(Impact.GetActor(), Damage, PawnOwner->GetController(), this, DamageTypeClass);
+	FPointDamageEvent DamageEvent;
+	DamageEvent.DamageTypeClass = DamageTypeClass;
+	DamageEvent.HitInfo = Impact;
+	DamageEvent.ShotDirection = ShootDir;
+	DamageEvent.Damage = Damage;
+
+	Impact.GetActor()->TakeDamage(Damage, DamageEvent, PawnOwner->GetController(), this);
 }
 
 void AItemWeapon::UpdateAmmo()

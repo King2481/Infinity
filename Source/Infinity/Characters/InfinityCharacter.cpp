@@ -150,6 +150,13 @@ float AInfinityCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		if (Health <= 0)
 		{
 			Die(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+
+			// If we actually are dying, since Die() may return false. Launch our character now.
+			if (bIsDying)
+			{
+				// TODO, use force based on damage type.
+				BroadcastDeath(HitInfo.ImpactPoint, MomentumDir * 12500.f, HitInfo.BoneName);
+			}
 		}
 
 		return ActualDamage;
@@ -161,8 +168,6 @@ float AInfinityCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 float AInfinityCharacter::ModifyDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const
 {
 	return DamageAmount;
-	/*float AlteredDamage = DamageAmount * ArmorDamageMitigationCurve.GetRichCurveConst()->Eval(Armor);
-	return AlteredDamage;*/
 }
 
 float AInfinityCharacter::DamageArmor(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const
@@ -231,9 +236,13 @@ void AInfinityCharacter::OnDeath()
 
 	WeaponMesh1P->SetHiddenInGame(true);
 	ArmMesh1P->SetHiddenInGame(true);
+}
 
+void AInfinityCharacter::BroadcastDeath_Implementation(const FVector_NetQuantize& HitPosition, const FVector_NetQuantize& DamageForce, const FName& BoneName)
+{
 	GetMesh()->SetCollisionProfileName("Ragdoll");
 	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->AddImpulseAtLocation(DamageForce, HitPosition, BoneName);
 }
 
 void AInfinityCharacter::OnRep_IsDying()
