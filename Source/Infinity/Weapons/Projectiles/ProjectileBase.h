@@ -9,6 +9,7 @@
 class USphereComponent;
 class UProjectileMovementComponent;
 class USurfaceReaction;
+class UPhysicalMaterial;
 
 UCLASS()
 class INFINITY_API AProjectileBase : public AActor
@@ -68,13 +69,13 @@ protected:
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastHit();
-	void MulticastHit_Implementation();
+	void MulticastHit(const FHitResult& Hit);
+	void MulticastHit_Implementation(const FHitResult& Hit);
 
 	virtual void HandleImpact(const FHitResult& Impact);
 
 	// What surface reaction does this weapon uses when it hits something.
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Projectile")
-	USurfaceReaction* SurfaceReaction;
+	TSubclassOf<USurfaceReaction> SurfaceReaction;
 
 };
