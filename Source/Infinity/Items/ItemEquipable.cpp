@@ -40,6 +40,14 @@ void AItemEquipable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 void AItemEquipable::Equip()
 {
+	if (PawnOwner)
+	{
+		PawnOwner->SetupFirstPersonWeaponMesh(Mesh1PAsset);
+		PawnOwner->PlayAnimationMontages(EquipAnimationPair.FirstPersonAnim, EquipAnimationPair.ThirdPersonAnim);
+	}
+
+	SetActorHiddenInGame(false);
+
 	GetWorldTimerManager().SetTimer(SwapToTimerHandle, this, &AItemEquipable::OnSwapToFinished, SwapToTime);
 }
 
@@ -55,17 +63,14 @@ void AItemEquipable::Unequip()
 
 void AItemEquipable::OnEquipped()
 {
-	if (PawnOwner)
-	{
-		PawnOwner->SetupFirstPersonWeaponMesh(Mesh1PAsset);
-	}
 
-	SetActorHiddenInGame(false);
 }
 
 void AItemEquipable::OnUnequipped()
 {
 	SetActorHiddenInGame(true);
+
+	GetWorldTimerManager().ClearTimer(SwapToTimerHandle);
 }
 
 void AItemEquipable::SetEquipableState(EEquipableState NewState)

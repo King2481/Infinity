@@ -151,6 +151,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	void ChangeFOV(const float NewFOV);
 
+	UFUNCTION(BlueprintCallable, Category = "Character")
+	void PlayAnimationMontages(UAnimMontage* FirstPersonMontage, UAnimMontage* ThirdPersonMontage);
+
 	virtual uint8 GetTeamId() const override;
 
 protected:

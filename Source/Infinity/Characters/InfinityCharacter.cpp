@@ -951,6 +951,19 @@ void AInfinityCharacter::ChangeFOV(const float NewFOV)
 	}
 }
 
+void AInfinityCharacter::PlayAnimationMontages(UAnimMontage* FirstPersonMontage, UAnimMontage* ThirdPersonMontage)
+{
+	if (FirstPersonMontage && ArmMesh1P->GetAnimInstance())
+	{
+		ArmMesh1P->GetAnimInstance()->Montage_Play(FirstPersonMontage);
+	}
+
+	if (ThirdPersonMontage && GetMesh()->GetAnimInstance())
+	{
+		GetMesh()->GetAnimInstance()->Montage_Play(ThirdPersonMontage);
+	}
+}
+
 uint8 AInfinityCharacter::GetTeamId() const
 {
 	return TeamId;

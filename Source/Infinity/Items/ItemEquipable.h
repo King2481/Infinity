@@ -18,6 +18,24 @@ enum class EEquipableState : uint8
 	Equipped      UMETA(DisplayName = "Equipped")
 };
 
+USTRUCT(BlueprintType)
+struct FAnimationPair
+{
+	GENERATED_BODY();
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UAnimMontage* FirstPersonAnim;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UAnimMontage* ThirdPersonAnim;
+
+	FAnimationPair()
+	{
+		FirstPersonAnim = nullptr;
+		ThirdPersonAnim = nullptr;
+	}
+};
+
 /**
  * 
  */
@@ -111,5 +129,8 @@ protected:
 
 	UPROPERTY()
 	FTimerHandle SwapToTimerHandle;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
+	FAnimationPair EquipAnimationPair;
 	
 };
