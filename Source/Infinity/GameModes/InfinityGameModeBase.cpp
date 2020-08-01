@@ -80,13 +80,13 @@ void AInfinityGameModeBase::InitializeTeams()
 
 	for (int i = 0; i <= TeamsForMode.Num() - 1; i++)
 	{
-		const auto Team = TeamsForMode[i];
-		if (Team.IsValid())
+		const auto Team = TeamsForMode[i].LoadSynchronous();
+		if (Team)
 		{
 			const auto NewTeam = GetWorld()->SpawnActor<ATeamInfo>(ATeamInfo::StaticClass(), FTransform());
 			if (NewTeam)
 			{
-				NewTeam->InitializeTeam(Team.Get(), i);
+				NewTeam->InitializeTeam(Team, i);
 				GS->AddTeam(NewTeam);
 			}
 		}
