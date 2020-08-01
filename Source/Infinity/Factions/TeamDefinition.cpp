@@ -5,5 +5,5 @@
 
 UTeamDefinition::UTeamDefinition()
 {
-
+	TeamName = FText::GetEmpty();
 }
