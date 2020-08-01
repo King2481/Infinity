@@ -7,6 +7,7 @@
 #include "TimerManager.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Infinity/Characters/InfinityCharacter.h"
+#include "Infinity/Player/InfinityPlayerController.h"
 
 // Sets default values
 APickup::APickup()
@@ -18,7 +19,7 @@ APickup::APickup()
 
 	CollisionComp = CreateOptionalDefaultSubobject<UBoxComponent>(TEXT("CollisionComp"));
 	CollisionComp->SetGenerateOverlapEvents(true);
-	CollisionComp->SetCollisionProfileName("OverlapOnlyPawn");
+	CollisionComp->SetCollisionProfileName("Pickup");
 
 	SetRootComponent(CollisionComp);
 
@@ -75,7 +76,11 @@ bool APickup::CanPickup(AInfinityCharacter* ForUser) const
 
 void APickup::HandlePickup(AInfinityCharacter* ForUser)
 {
-	// TODO: Play 2D sound here.
+	const auto PC = ForUser->GetController<AInfinityPlayerController>();
+	if (PC)
+	{
+		PC->ClientPlaySound2D(PickupSound);
+	}
 
 	BlueprintHandlePickup(ForUser);
 }
