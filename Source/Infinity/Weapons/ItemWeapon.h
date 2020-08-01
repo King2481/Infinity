@@ -37,7 +37,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// Will attempt to decrement ammo, will not decremtn ammo is bConsumesAmmo is set to false.
-	void DecrementAmmo(int32 Amount = 1);
+	void DecrementAmmo();
 
 	// Updates ammo, may give or take based on what the owning characters stored ammo is.
 	void UpdateAmmo();
@@ -76,6 +76,14 @@ protected:
 	// What is the ammo type for this weapon?
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Weapon")
 	EAmmoType AmmoType;
+
+	// How much ammo is consumed per shot?
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Weapon")
+	uint8 AmmoPerShot;
+
+	// How much ammo do we need to fire a shot?
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Weapon")
+	int32 MinAmmoRequiredToShoot;
 
 	// Does this weapon consume ammo when fired?
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Weapon")

@@ -19,6 +19,8 @@ AItemWeapon::AItemWeapon()
 
 	Ammo = 0;
 	AmmoType = EAmmoType::AT_None;
+	AmmoPerShot = 1;
+	MinAmmoRequiredToShoot = 1;
 	StartingAmmo = 0;
 	bConsumesAmmo = true;
 	SurfaceReaction = nullptr;
@@ -66,7 +68,7 @@ bool AItemWeapon::AllowFire() const
 	}
 #endif
 
-	if (bShouldConsumeAmmo && Ammo <= 0)
+	if (bShouldConsumeAmmo && (Ammo <= 0 || Ammo < MinAmmoRequiredToShoot))
 	{
 		return false;
 	}
@@ -119,7 +121,7 @@ void AItemWeapon::UpdateAmmo()
 	}
 }
 
-void AItemWeapon::DecrementAmmo(int32 Amount /*= 1*/)
+void AItemWeapon::DecrementAmmo()
 {
 	bool bShouldDecrement = bConsumesAmmo;
 
@@ -132,7 +134,7 @@ void AItemWeapon::DecrementAmmo(int32 Amount /*= 1*/)
 
 	if (bShouldDecrement)
 	{
-		Ammo = FMath::Max<int32>(Ammo - Amount, 0);
+		Ammo = FMath::Max<int32>(Ammo - AmmoPerShot, 0);
 	}
 }
 
