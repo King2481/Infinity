@@ -72,6 +72,16 @@ void AProjectileGrenade::MulticastExplode_Implementation(const FVector& Location
 		return;
 	}
 
+	if (ExplosionConfig.ExplosionSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ExplosionConfig.ExplosionSound, Location);
+	}
+
+	if (ExplosionConfig.ExplosionFX)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionConfig.ExplosionFX, Location);
+	}
+
 #if !UE_BUILD_SHIPPING
 	if (CvarDebugExplosion.GetValueOnGameThread() > 0)
 	{

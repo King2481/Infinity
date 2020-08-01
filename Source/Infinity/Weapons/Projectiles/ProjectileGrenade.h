@@ -44,6 +44,15 @@ struct FExplosionConfig
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float ExplosionCameraShakeOuterRadius;
 
+	//////////////////////////////////////////////////////////////////
+	// FX
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UParticleSystem* ExplosionFX;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	USoundBase* ExplosionSound;
+
 	FExplosionConfig()
 	{
 		ExplosionInnerRadius = 150.f;
@@ -55,6 +64,9 @@ struct FExplosionConfig
 		ExplosionCameraShakeClass = nullptr;
 		ExplosionCameraShakeInnerRadius = 200.f;
 		ExplosionCameraShakeOuterRadius = 1000.f;
+
+		ExplosionFX = nullptr;
+		ExplosionSound = nullptr;
 	}
 };
 
