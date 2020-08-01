@@ -6,6 +6,8 @@
 #include "GameFramework/GameState.h"
 #include "InfinityGameState.generated.h"
 
+class ATeamInfo;
+
 /**
  * 
  */
@@ -22,6 +24,8 @@ public:
 	
 	void SetRoundTimer(const int32 Seconds);
 
+	void AddTeam(ATeamInfo* NewTeam);
+
 protected:
 
 	// When is this game mode expected to end?
@@ -32,5 +36,7 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Game State")
 	float GetRoundTimeRemaining() const;
 
-
+	// What teams have been created and are currently in play?
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Gamemode")
+	TArray<ATeamInfo*> Teams;
 };

@@ -9,6 +9,8 @@
 class AInfinityCharacter;
 class AInfinityPlayerState;
 class UGameAnnouncementComponent;
+class UTeamDefinition;
+class ATeamInfo;
 
 /**
 * Additional match states
@@ -25,7 +27,7 @@ namespace MatchState
 /**
  * 
  */
-UCLASS()
+UCLASS(Config = Game)
 class INFINITY_API AInfinityGameModeBase : public AGameMode
 {
 	GENERATED_BODY()
@@ -36,6 +38,9 @@ public:
 
 	// Called when the game is initialized
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
+	// Called when components have been initialized.
+	virtual void PostInitializeComponents() override;
 
 	// Called before a client attempts to join this match
 	virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
@@ -60,6 +65,8 @@ public:
 	void OnGameOverStart();
 
 	virtual void HandleGameOver();
+
+	virtual void InitializeTeams();
 
 protected:
 
@@ -103,4 +110,9 @@ protected:
 	uint8 WinningTeamId;
 
 	FTimerHandle GameOverTimerHandle;
+
+	// What teams are in this mode?
+	UPROPERTY(Config, BlueprintReadOnly, Category = "Gamemode")
+	TArray<TSoftClassPtr<UTeamDefinition>> TeamsForMode;
+
 };

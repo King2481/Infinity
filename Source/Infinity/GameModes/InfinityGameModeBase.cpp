@@ -11,6 +11,8 @@
 #include "Infinity/HUD/InfinityHUD.h"
 #include "UObject/ConstructorHelpers.h" 
 #include "Kismet/GameplayStatics.h"
+#include "Infinity/Factions/TeamInterface.h"
+#include "Infinity/Factions/TeamInfo.h"
 
 namespace MatchState
 {
@@ -37,7 +39,7 @@ AInfinityGameModeBase::AInfinityGameModeBase()
 	bValidateClientSideHits = true;
 	RoundTimeLimit = 480; // 8 Minutes for all rounds by default.
 	WinningPlayerState = nullptr;
-	WinningTeamId = 255;
+	WinningTeamId = ITeamInterface::InvalidId;
 }
 
 void AInfinityGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
@@ -51,6 +53,44 @@ void AInfinityGameModeBase::InitGame(const FString& MapName, const FString& Opti
 	if (!ServerPassword.IsEmpty())
 	{
 		UE_LOG(LogGameMode, Display, TEXT("Server is now password protected!"));
+	}
+}
+
+void AInfinityGameModeBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	InitializeTeams();
+}
+
+void AInfinityGameModeBase::InitializeTeams()
+{
+	if (TeamsForMode.Num() <= 0)
+	{
+		// No teams to initialize
+		return;
+	}
+
+	const auto GS = GetGameState<AInfinityGameState>();
+	if (!GS)
+	{
+		// No GameState available.
+		return;
+	}
+
+	for (int i = 0; i <= TeamsForMode.Num() - 1; i++)
+	{
+		const auto Team = TeamsForMode[i].LoadSynchronous();
+		if (Team)
+		{
+			const auto NewTeam = GetWorld()->SpawnActor<ATeamInfo>(ATeamInfo::StaticClass(), FTransform());
+			if (NewTeam)
+			{
+				const auto NewTeamDef = Team->GetDefaultObject<UTeamDefinition>();
+				NewTeam->InitializeTeam(NewTeamDef, i);
+				GS->AddTeam(NewTeam);
+			}
+		}
 	}
 }
 

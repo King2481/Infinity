@@ -14,6 +14,7 @@ void AInfinityGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AInfinityGameState, RoundEndTime);
+	DOREPLIFETIME(AInfinityGameState, Teams);
 }
 
 void AInfinityGameState::SetRoundTimer(const int32 Seconds)
@@ -29,4 +30,9 @@ void AInfinityGameState::SetRoundTimer(const int32 Seconds)
 float AInfinityGameState::GetRoundTimeRemaining() const
 {
 	return FMath::Max(RoundEndTime - GetServerWorldTimeSeconds(), 0.0f);
+}
+
+void AInfinityGameState::AddTeam(ATeamInfo* NewTeam)
+{
+	Teams.AddUnique(NewTeam);
 }
