@@ -112,7 +112,7 @@ protected:
 	FTimerHandle GameOverTimerHandle;
 
 	// What teams are in this mode?
-	UPROPERTY(Config, BlueprintReadOnly, Category = "Gamemode")
-	TArray<TSoftClassPtr<UTeamDefinition>> TeamsForMode;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gamemode")
+	TArray<TSoftObjectPtr<UTeamDefinition>> TeamsForMode;
 
 };
