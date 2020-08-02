@@ -771,7 +771,7 @@ void AInfinityCharacter::GivePowerUp(TSubclassOf<UPowerUp> PowerUpClass)
 		return;
 	}
 
-	const auto PowerUp = NewObject<UPowerUp>(PowerUpClass);
+	const auto PowerUp = NewObject<UPowerUp>(this, PowerUpClass);
 	if (PowerUp)
 	{
 		PowerUp->Activate(this);

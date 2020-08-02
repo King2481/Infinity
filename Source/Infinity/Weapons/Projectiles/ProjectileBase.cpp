@@ -7,6 +7,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Infinity/FX/SurfaceReaction.h"
+#include "Infinity/Characters/InfinityCharacter.h"
 
 // Sets default values
 AProjectileBase::AProjectileBase()
@@ -103,13 +104,21 @@ void AProjectileBase::HandleImpact(const FHitResult& Impact)
 
 		if (Impact.GetActor())
 		{
+			float Multiplier = 1.f;
+
+			const auto InfinityCharacter = Cast<AInfinityCharacter>(GetOwner());
+			if (InfinityCharacter)
+			{
+				Multiplier = InfinityCharacter->GetDamageMultipliers();
+			}
+
 			FPointDamageEvent DamageEvent;
 			DamageEvent.DamageTypeClass = DirectDamageTypeClass;
 			DamageEvent.HitInfo = Impact;
 			DamageEvent.ShotDirection = ProjectileMovement->Velocity.GetSafeNormal();
-			DamageEvent.Damage = DirectDamage;
+			DamageEvent.Damage = DirectDamage * Multiplier;
 
-			Impact.GetActor()->TakeDamage(DirectDamage, DamageEvent, GetInstigatorController(), this);
+			Impact.GetActor()->TakeDamage(DirectDamage * Multiplier, DamageEvent, GetInstigatorController(), this);
 		}
 
 		if (bDestroyOnHit)

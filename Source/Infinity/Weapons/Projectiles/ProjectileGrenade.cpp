@@ -9,6 +9,7 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Infinity/Characters/InfinityCharacter.h"
 
 #if !UE_BUILD_SHIPPING
 static TAutoConsoleVariable<int32> CvarDebugExplosion(TEXT("DebugExplosions"), 0, TEXT("Visualise Explosion Info"));
@@ -49,8 +50,16 @@ void AProjectileGrenade::ExplodeAt(const FVector& Location, const FExplosionConf
 	TArray<AActor*> IgnoredActors;
 	IgnoredActors.Add(this);
 
+	float Multiplier = 1.f;
+	
+	const auto InfinityCharacter = Cast<AInfinityCharacter>(GetOwner());
+	if (InfinityCharacter)
+	{
+		Multiplier = InfinityCharacter->GetDamageMultipliers();
+	}
+
 	// TODO: Custom statics function if there are multple things that can "explode"
-	UGameplayStatics::ApplyRadialDamageWithFalloff(this, InExplosionConfig.ExplosionInnerDamage, InExplosionConfig.ExplosionOuterDamage, GetActorLocation() + FVector(0.f, 0.f, 1.f), InExplosionConfig.ExplosionInnerRadius, InExplosionConfig.ExplosionOuterRadius, 1.f, InExplosionConfig.DamageTypeClass, IgnoredActors, this, GetInstigatorController());
+	UGameplayStatics::ApplyRadialDamageWithFalloff(this, InExplosionConfig.ExplosionInnerDamage * Multiplier, InExplosionConfig.ExplosionOuterDamage * Multiplier, GetActorLocation() + FVector(0.f, 0.f, 1.f), InExplosionConfig.ExplosionInnerRadius, InExplosionConfig.ExplosionOuterRadius, 1.f, InExplosionConfig.DamageTypeClass, IgnoredActors, this, GetInstigatorController());
 
 	if (ExplosionConfig.ExplosionCameraShakeClass)
 	{
