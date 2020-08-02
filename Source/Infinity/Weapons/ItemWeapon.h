@@ -57,6 +57,9 @@ public:
 	// Called when we equip the weapon
 	virtual void Equip() override;
 
+	// Called when we unequip the weapon
+	virtual void Unequip() override;
+
 protected:
 
 	// Checks to see if we can actually deal damage.

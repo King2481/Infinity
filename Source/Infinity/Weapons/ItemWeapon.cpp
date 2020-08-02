@@ -57,6 +57,16 @@ void AItemWeapon::Equip()
 	UpdateAmmo();
 }
 
+void AItemWeapon::Unequip()
+{
+	Super::Unequip();
+
+	if (PawnOwner)
+	{
+		PawnOwner->StoreAmmo(AmmoType, Ammo);
+	}
+}
+
 bool AItemWeapon::AllowFire() const
 {
 	bool bShouldConsumeAmmo = bConsumesAmmo;

@@ -68,6 +68,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Equipable")
 	void BlueprintOnAltFireReleased();
 
+	// Blueprint event for OnEquipableStateChanged()
+	UFUNCTION(BlueprintImplementableEvent, Category = "Equipable")
+	void BlueprintOnEquipableStateChanged();
+
 	// Called when we equip
 	virtual void Equip();
 

@@ -135,6 +135,8 @@ void AItemEquipable::OnEquipableStateChanged()
 			break;
 		}
 	}
+
+	BlueprintOnEquipableStateChanged();
 }
 
 bool AItemEquipable::CanEquip() const
