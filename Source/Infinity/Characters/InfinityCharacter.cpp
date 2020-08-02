@@ -12,6 +12,7 @@
 #include "Infinity/GameModes/InfinityGameModeBase.h"
 #include "Infinity/Weapons/PowerUp.h"
 #include "Infinity/Weapons/ItemWeapon.h"
+#include "Infinity/Weapons/InfinityDamageType.h"
 
 // Sets default values
 AInfinityCharacter::AInfinityCharacter(const FObjectInitializer& ObjectInitializer)
@@ -159,10 +160,50 @@ float AInfinityCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 			}
 		}
 
+		const FVector Momentum = CalculateMomentumFromDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+		if (!bIsDying)
+		{
+			// TODO: ragdoll should go flying.
+			LaunchCharacter(Momentum, true, false);
+		}
+
 		return ActualDamage;
 	}
 
 	return 0.f;
+}
+
+FVector AInfinityCharacter::CalculateMomentumFromDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const
+{
+	if (!DamageEvent.DamageTypeClass)
+	{
+		return FVector(0.f);
+	}
+
+	FHitResult HitInfo;
+	FVector MomentumDir;
+	const auto DamageType = DamageEvent.DamageTypeClass->GetDefaultObject<UInfinityDamageType>();
+
+	if (!DamageType)
+	{
+		// TODO: Maybe it would be better for damage magnitude to be handled in the damage type class
+		return FVector(0);
+	}
+
+	const float Magnitude = DamageType->Magnitude;
+
+	DamageEvent.GetBestHitInfo(this, EventInstigator, HitInfo, MomentumDir);
+
+	if (DamageType->IsA<UDamageTypeBullet>())
+	{
+		//return
+	}
+	else if (DamageType->IsA<UDamageTypeExplosive>())
+	{
+		return (GetActorLocation() - DamageCauser->GetActorLocation()).GetSafeNormal() * Magnitude;
+	}
+
+	return FVector(0);
 }
 
 float AInfinityCharacter::ModifyDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const
