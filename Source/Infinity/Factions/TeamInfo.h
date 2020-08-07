@@ -32,6 +32,9 @@ protected:
 	UPROPERTY(Replicated, ReplicatedUsing = OnRep_TeamId, BlueprintReadOnly, Category = "Team")
 	uint8 TeamId;
 
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Team")
+	UTeamDefinition* TeamDefinition;
+
 	UFUNCTION()
 	void OnRep_TeamId();
 	

@@ -251,3 +251,19 @@ void AInfinityPlayerController::ClientOnRoundWon_Implementation(AInfinityPlayerS
 
 	OnRoundWonDelegate.Broadcast(WinningPlayerState, WinningTeam);
 }
+
+uint8 AInfinityPlayerController::GetTeamId() const
+{
+	const auto PS = Cast<AInfinityPlayerState>(PlayerState);
+	
+	return PS ? PS->GetTeamId() : ITeamInterface::InvalidId;
+}
+
+void AInfinityPlayerController::JoinTeam(uint8 NewTeam)
+{
+	const auto PS = Cast<AInfinityPlayerState>(PlayerState);
+	if (PS)
+	{
+		PS->SetTeamId(NewTeam);
+	}
+}

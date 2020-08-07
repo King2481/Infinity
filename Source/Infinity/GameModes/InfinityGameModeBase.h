@@ -45,6 +45,9 @@ public:
 	// Called before a client attempts to join this match
 	virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
 
+	// Called when a player has logged in.
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+
 	// Called when a character is killed.
 	virtual void OnCharacterKilled(AInfinityCharacter* Victim, float KillingDamage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 
@@ -67,6 +70,8 @@ public:
 	virtual void HandleGameOver();
 
 	virtual void InitializeTeams();
+
+	virtual uint8 ChooseTeam(AInfinityPlayerState* ForPlayerState) const;
 
 protected:
 
@@ -95,6 +100,14 @@ protected:
 	// Should we validate client side hits? This is checked only for players, as bot hits are never validated.
 	UPROPERTY(Config, BlueprintReadOnly, Category = "Gamemode")
 	bool bValidateClientSideHits;
+
+	// Do we allow friendly fire hits?
+	UPROPERTY(Config, BlueprintReadOnly, Category = "Gamemode")
+	bool bAllowFriendlyFire;
+
+	// When damaged from friendly fire, what is the multiplier?
+	UPROPERTY(Config, BlueprintReadOnly, Category = "Gamemode")
+	float FriendlyFireDamageMultiplier;
 
 	// Password required to connect to the server 
 	FString ServerPassword;

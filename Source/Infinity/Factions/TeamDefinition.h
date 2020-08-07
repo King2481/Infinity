@@ -27,4 +27,8 @@ public:
 	// What skins does this team use?
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Team")
 	TArray<TSoftObjectPtr<USkeletalMesh>> AllowedSkins;
+
+	// What is the team color for this team?
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Team")
+	FColor TeamColor;
 };

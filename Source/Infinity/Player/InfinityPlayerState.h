@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "Infinity/Factions/TeamInterface.h"
 #include "InfinityPlayerState.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMatchStatsUpdatedDelegate);
 
 USTRUCT(BlueprintType)
 struct FMatchStats
@@ -35,7 +38,7 @@ struct FMatchStats
  * 
  */
 UCLASS()
-class INFINITY_API AInfinityPlayerState : public APlayerState
+class INFINITY_API AInfinityPlayerState : public APlayerState, public ITeamInterface
 {
 	GENERATED_BODY()
 
@@ -56,13 +59,35 @@ public:
 	// Scores a death, must be called on auth to replicate.
 	void ScoreDeath(int32 Amount = 1);
 
+	// Returns the TeamId (based on PlayerStates TeamId)
+	virtual uint8 GetTeamId() const override;
+
+	void SetTeamId(uint8 NewTeam);
+
+protected:
+
+	// What team does this character belong to?
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_TeamId, BlueprintReadOnly, Category = "Character")
+	uint8 TeamId;
+
+	UFUNCTION()
+	void OnRep_TeamId();
+
 protected:
 
 	// Function for replication setup.
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// Match stats for this player.
-	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Player State")
+	UPROPERTY(BlueprintReadOnly, Replicated, ReplicatedUsing = OnRep_MatchStats, Category = "Player State")
 	FMatchStats MatchStats;
-	
+
+	UFUNCTION()
+	void OnRep_MatchStats();
+
+	void OnMatchStatsUpdated();
+
+	UPROPERTY()
+	FOnMatchStatsUpdatedDelegate OnMatchStatsUpdatedDelegate;
+
 };

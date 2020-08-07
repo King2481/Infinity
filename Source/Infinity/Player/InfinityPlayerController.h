@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Infinity/Factions/TeamInterface.h"
 #include "InfinityPlayerController.generated.h"
 
 class AInfinityPlayerState;
@@ -16,7 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnRoundWonDelegate, AInfinityPlaye
  * 
  */
 UCLASS()
-class INFINITY_API AInfinityPlayerController : public APlayerController
+class INFINITY_API AInfinityPlayerController : public APlayerController, public ITeamInterface
 {
 	GENERATED_BODY()
 	
@@ -69,6 +70,11 @@ public:
 
 	// Queues a respawn with a delay.
 	void QueueRespawnDelay(float Delay);
+
+	// Joins the specified team
+	void JoinTeam(uint8 NewTeam);
+
+	virtual uint8 GetTeamId() const override;
 
 protected:
 

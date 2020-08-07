@@ -37,6 +37,8 @@ AInfinityGameModeBase::AInfinityGameModeBase()
 	UniversalDamageMultiplayer = 1.f;
 	SelfDamageMultiplier = 0.25f;
 	bValidateClientSideHits = true;
+	bAllowFriendlyFire = false;
+	FriendlyFireDamageMultiplier = 0.25f;
 	RoundTimeLimit = 480; // 8 Minutes for all rounds by default.
 	WinningPlayerState = nullptr;
 	WinningTeamId = ITeamInterface::InvalidId;
@@ -119,6 +121,60 @@ void AInfinityGameModeBase::PreLogin(const FString& Options, const FString& Addr
 	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
 }
 
+void AInfinityGameModeBase::PostLogin(APlayerController* NewPlayer)
+{
+	if (TeamsForMode.Num() >= 2)
+	{
+		const auto PC = Cast<AInfinityPlayerController>(NewPlayer);
+		const auto PS = Cast<AInfinityPlayerState>(NewPlayer->PlayerState);
+		if (PC && PS)
+		{
+			PC->JoinTeam(ChooseTeam(PS));
+		}
+	}
+
+	Super::PostLogin(NewPlayer);
+}
+
+uint8 AInfinityGameModeBase::ChooseTeam(AInfinityPlayerState* ForPlayerState) const
+{
+	TArray<int32> TeamBalance;
+	TeamBalance.AddZeroed(TeamsForMode.Num());
+
+	// get current team balance
+	for (int32 i = 0; i < GameState->PlayerArray.Num(); i++)
+	{
+		AInfinityPlayerState const* const TestPlayerState = Cast<AInfinityPlayerState>(GameState->PlayerArray[i]);
+		if (TestPlayerState && TestPlayerState != ForPlayerState && TeamBalance.IsValidIndex(TestPlayerState->GetTeamId()))
+		{
+			TeamBalance[TestPlayerState->GetTeamId()]++;
+		}
+	}
+
+	// find least populated one
+	int32 BestTeamScore = TeamBalance[0];
+	for (int32 i = 1; i < TeamBalance.Num(); i++)
+	{
+		if (BestTeamScore > TeamBalance[i])
+		{
+			BestTeamScore = TeamBalance[i];
+		}
+	}
+
+	// there could be more than one...
+	TArray<int32> BestTeams;
+	for (int32 i = 0; i < TeamBalance.Num(); i++)
+	{
+		if (TeamBalance[i] == BestTeamScore)
+		{
+			BestTeams.Add(i);
+		}
+	}
+
+	// get random from best list
+	const int32 RandomBestTeam = BestTeams[FMath::RandHelper(BestTeams.Num())];
+	return RandomBestTeam;
+}
 
 void AInfinityGameModeBase::OnCharacterKilled(AInfinityCharacter* Victim, float KillingDamage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
@@ -159,10 +215,17 @@ float AInfinityGameModeBase::OnCharacterTakeDamage(AInfinityCharacter* Reciever,
 	const auto DamagedController = Reciever ? Reciever->GetController() : nullptr;
 	const auto DamagerController = EventInstigator;
 	const bool bSelfDamage = DamagedController == DamagerController;
+	const auto DamagingCharacter = Cast<AInfinityCharacter>(EventInstigator->GetPawn());
 
 	if (bSelfDamage)
 	{
 		AlteredDamage *= SelfDamageMultiplier;
+	}
+
+	// Friendly fire specfics check.
+	if (ITeamInterface::IsAlly(Reciever, DamagingCharacter) && bAllowFriendlyFire && !bSelfDamage)
+	{
+		AlteredDamage *= FriendlyFireDamageMultiplier;
 	}
 
 	return AlteredDamage;

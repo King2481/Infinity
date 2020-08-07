@@ -9,6 +9,7 @@ ATeamInfo::ATeamInfo()
 {
 	bReplicates = true;
 	TeamId = ITeamInterface::InvalidId;
+	TeamDefinition = nullptr;
 }
 
 void ATeamInfo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -16,10 +17,12 @@ void ATeamInfo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ATeamInfo, TeamId);
+	DOREPLIFETIME(ATeamInfo, TeamDefinition);
 }
 
 void ATeamInfo::InitializeTeam(UTeamDefinition* NewTeamDefition, uint8 NewTeamId)
 {
+	TeamDefinition = NewTeamDefition;
 	TeamId = NewTeamId;
 }
 
