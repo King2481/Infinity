@@ -6,6 +6,7 @@
 #include "Infinity/HUD/InfinityHUD.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Infinity/GameModes/InfinityGameState.h"
 
 AInfinityPlayerController::AInfinityPlayerController()
 {
@@ -261,9 +262,19 @@ uint8 AInfinityPlayerController::GetTeamId() const
 
 void AInfinityPlayerController::JoinTeam(uint8 NewTeam)
 {
-	const auto PS = Cast<AInfinityPlayerState>(PlayerState);
-	if (PS)
+	const auto World = GetWorld();
+	if (!World)
 	{
-		PS->SetTeamId(NewTeam);
+		return;
+	}
+
+	// We call the GameState here instead of GameMode as eventually, I may want the ability for players to swap teams.
+
+	const auto GS = Cast<AInfinityGameState>(World->GetGameState());
+	const auto PS = Cast<AInfinityPlayerState>(PlayerState);
+
+	if (GS && PS)
+	{
+		GS->AddPlayerForTeam(PS, NewTeam);
 	}
 }

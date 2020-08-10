@@ -7,6 +7,7 @@
 #include "InfinityGameState.generated.h"
 
 class ATeamInfo;
+class AInfinityPlayerState;
 
 /**
  * 
@@ -22,9 +23,18 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
+	// Sets the round timer for this many seconds
 	void SetRoundTimer(const int32 Seconds);
 
+	// Adds a team to the game
 	void AddTeam(ATeamInfo* NewTeam);
+
+	// Returns the team info for the specified TeamId
+	UFUNCTION(BlueprintPure, Category = "Game State")
+	ATeamInfo* GetTeamFromId(const uint8 TeamId) const;
+
+	// Adds a player to the specifed TeamId
+	void AddPlayerForTeam(AInfinityPlayerState* ForPlayer, uint8 TeamId);
 
 protected:
 

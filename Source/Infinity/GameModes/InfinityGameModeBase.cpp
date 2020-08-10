@@ -186,6 +186,8 @@ void AInfinityGameModeBase::OnCharacterKilled(AInfinityCharacter* Victim, float 
 
 	const auto VictimPS = Cast<AInfinityPlayerState>(Victim->GetPlayerState());
 	const auto KillerPS = EventInstigator ? EventInstigator->GetPlayerState<AInfinityPlayerState>() : nullptr;
+	const auto GS = Cast<AInfinityGameState>(GameState);
+	const bool bSelfKill = VictimPS == KillerPS;
 
 	if (VictimPS && KillerPS)
 	{

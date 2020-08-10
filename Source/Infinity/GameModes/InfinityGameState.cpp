@@ -3,6 +3,7 @@
 
 #include "InfinityGameState.h"
 #include "Net/UnrealNetwork.h"
+#include "Infinity/Factions/TeamInfo.h"
 
 AInfinityGameState::AInfinityGameState()
 {
@@ -35,4 +36,34 @@ float AInfinityGameState::GetRoundTimeRemaining() const
 void AInfinityGameState::AddTeam(ATeamInfo* NewTeam)
 {
 	Teams.AddUnique(NewTeam);
+}
+
+ATeamInfo* AInfinityGameState::GetTeamFromId(const uint8 TeamId) const
+{
+	if (Teams.Num() <= 0)
+	{
+		// No Teams
+		return nullptr;
+	}
+
+	for (auto& Team : Teams)
+	{
+		if (Team && Team->GetTeamId() == TeamId)
+		{
+			return Team;
+		}
+	}
+
+	return nullptr;
+}
+
+void AInfinityGameState::AddPlayerForTeam(AInfinityPlayerState* ForPlayer, uint8 TeamId)
+{
+	const auto Team = GetTeamFromId(TeamId);
+	if (!Team)
+	{
+		return;
+	}
+
+	Team->AddPlayer(ForPlayer);
 }

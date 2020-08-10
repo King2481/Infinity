@@ -87,7 +87,7 @@ protected:
 
 	void OnMatchStatsUpdated();
 
-	UPROPERTY()
+	UPROPERTY(BlueprintAssignable)
 	FOnMatchStatsUpdatedDelegate OnMatchStatsUpdatedDelegate;
 
 };

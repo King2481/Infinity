@@ -4,12 +4,14 @@
 #include "TeamInfo.h"
 #include "TeamInterface.h"
 #include "Net/UnrealNetwork.h"
+#include "Infinity/Player/InfinityPlayerState.h"
 
 ATeamInfo::ATeamInfo()
 {
 	bReplicates = true;
 	TeamId = ITeamInterface::InvalidId;
 	TeamDefinition = nullptr;
+	TeamScore = 0;
 }
 
 void ATeamInfo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -18,6 +20,8 @@ void ATeamInfo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 
 	DOREPLIFETIME(ATeamInfo, TeamId);
 	DOREPLIFETIME(ATeamInfo, TeamDefinition);
+	DOREPLIFETIME(ATeamInfo, TeamScore);
+	DOREPLIFETIME(ATeamInfo, Players);
 }
 
 void ATeamInfo::InitializeTeam(UTeamDefinition* NewTeamDefition, uint8 NewTeamId)
@@ -34,4 +38,30 @@ void ATeamInfo::OnRep_TeamId()
 uint8 ATeamInfo::GetTeamId() const
 {
 	return TeamId;
+}
+
+void ATeamInfo::ScorePoints(int32 AmountToScore /* = 1 */)
+{
+	TeamScore += AmountToScore;
+}
+
+int32 ATeamInfo::GetScore() const
+{
+	return TeamScore;
+}
+
+void ATeamInfo::AddPlayer(AInfinityPlayerState* NewPlayer)
+{
+	if (NewPlayer)
+	{
+		Players.AddUnique(NewPlayer);
+		NewPlayer->SetTeamId(TeamId);
+
+		OnPlayersArrayUpdatedDelegate.Broadcast();
+	}
+}
+
+void ATeamInfo::OnRep_Players()
+{
+	OnPlayersArrayUpdatedDelegate.Broadcast();
 }
