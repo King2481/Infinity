@@ -6,6 +6,8 @@
 #include "Engine/GameInstance.h"
 #include "InfinityGameInstance.generated.h"
 
+class FOnlineSessionSettings;
+
 /**
  * 
  */

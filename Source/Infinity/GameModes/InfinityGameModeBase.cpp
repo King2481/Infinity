@@ -51,7 +51,7 @@ void AInfinityGameModeBase::InitGame(const FString& MapName, const FString& Opti
 	RoundTimeLimit = UGameplayStatics::GetIntOption(Options, TEXT("RoundTimeLimit"), RoundTimeLimit);
 
 	// Password
-	ServerPassword = UGameplayStatics::ParseOption(Options, TEXT("Password"));
+	ServerPassword = UGameplayStatics::ParseOption(Options, TEXT("Password="));
 	if (!ServerPassword.IsEmpty())
 	{
 		UE_LOG(LogGameMode, Display, TEXT("Server is now password protected!"));
