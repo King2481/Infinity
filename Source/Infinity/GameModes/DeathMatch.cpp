@@ -8,7 +8,7 @@
 
 ADeathMatch::ADeathMatch()
 {
-	ScoreNeededToWin = 1;
+	ScoreNeededToWin = 30;
 }
 
 void ADeathMatch::OnCharacterKilled(AInfinityCharacter* Victim, float KillingDamage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

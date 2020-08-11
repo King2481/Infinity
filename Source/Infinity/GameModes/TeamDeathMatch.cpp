@@ -10,7 +10,7 @@
 
 ATeamDeathMatch::ATeamDeathMatch()
 {
-	ScoreNeededToWin = 1;
+	ScoreNeededToWin = 75;
 }
 
 void ATeamDeathMatch::OnCharacterKilled(AInfinityCharacter* Victim, float KillingDamage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

@@ -13,13 +13,15 @@ UInfinityGameInstance::UInfinityGameInstance()
 
 AGameModeBase* UInfinityGameInstance::CreateGameModeForURL(FURL InURL, UWorld* InWorld)
 {
-	UGameEngine* const GameEngine = Cast<UGameEngine>(GEngine);
+	return Super::CreateGameModeForURL(InURL, InWorld);
+
+	/*UGameEngine* const GameEngine = Cast<UGameEngine>(GEngine);
 	AWorldSettings* Settings = InWorld->GetWorldSettings();
 
 	bool bScenarioSelectedGameMode = false;
 
-	FString GamemodeParam, ScenarioParam;
-	FString	Error, Options;
+	FString GamemodeParam;
+	FString	Options;
 	FString SelectedGamemode;
 
 	for (int32 i = 0; i < InURL.Op.Num(); i++)
@@ -91,5 +93,5 @@ AGameModeBase* UInfinityGameInstance::CreateGameModeForURL(FURL InURL, UWorld* I
 	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnInfo.ObjectFlags |= RF_Transient;	// We never want to save game modes into a map
 
-	return InWorld->SpawnActor<AGameModeBase>(GameClass, SpawnInfo);
+	return InWorld->SpawnActor<AGameModeBase>(GameClass, SpawnInfo);*/
 }
