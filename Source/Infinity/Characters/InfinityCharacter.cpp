@@ -40,7 +40,7 @@ AInfinityCharacter::AInfinityCharacter(const FObjectInitializer& ObjectInitializ
 	
 	bIsSliding = false;
 
-	TeamId = ITeamInterface::InvalidId; // TODO: Need to apply this to the PlayerState and PlayerController as well
+	TeamId = ITeamInterface::InvalidId; 
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(RootComponent);
@@ -107,6 +107,7 @@ void AInfinityCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(AInfinityCharacter, CurrentEquipable)
 	DOREPLIFETIME(AInfinityCharacter, Inventory);
 	DOREPLIFETIME(AInfinityCharacter, PowerUps);
+	DOREPLIFETIME(AInfinityCharacter, TeamId);
 
 	// Owner only
 	DOREPLIFETIME_CONDITION(AInfinityCharacter, StoredAmmo, COND_OwnerOnly);

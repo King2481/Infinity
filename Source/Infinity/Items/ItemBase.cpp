@@ -16,11 +16,12 @@ AItemBase::AItemBase()
 	bNetUseOwnerRelevancy = true;
 
 	Mesh3P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh3P"));
-	Mesh3P->SetupAttachment(RootComponent);
 	Mesh3P->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
 	Mesh3P->CastShadow = true;
 	Mesh3P->bOnlyOwnerSee = false;
 	Mesh3P->bOwnerNoSee = true;
+
+	SetRootComponent(Mesh3P);
 
 	ItemName = FText::GetEmpty();
 
