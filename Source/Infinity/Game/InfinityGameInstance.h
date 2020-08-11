@@ -18,4 +18,6 @@ public:
 
 	UInfinityGameInstance();
 
+	virtual AGameModeBase* CreateGameModeForURL(FURL InURL, UWorld* InWorld) override;
+
 };
