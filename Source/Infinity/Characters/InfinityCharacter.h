@@ -151,10 +151,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	void ChangeFOV(const float NewFOV);
 
+	// Plays the following montages for the first and third person meshes
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	void PlayAnimationMontages(UAnimMontage* FirstPersonMontage, UAnimMontage* ThirdPersonMontage);
 
+	// Returns the Team Id for this character
 	virtual uint8 GetTeamId() const override;
+
+	// Sets the Team Id for this character
+	void SetTeamId(const uint8 NewTeamId);
+
+	// Sets the player skin for this character.
+	void SetPlayerSkin(USkeletalMesh* NewPlayerSkin, bool bFromReplication = false);
 
 protected:
 
@@ -164,6 +172,13 @@ protected:
 
 	UFUNCTION()
 	void OnRep_TeamId();
+
+	// The skin the player is shown with.
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_PlayerSkin, BlueprintReadOnly, Category = "Character")
+	USkeletalMesh* PlayerSkin;
+
+	UFUNCTION()
+	void OnRep_PlayerSkin();
 
 	// This character damage multiplier (server only)
 	UPROPERTY(BlueprintReadOnly, Category = "Character")

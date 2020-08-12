@@ -2,6 +2,7 @@
 
 
 #include "TeamInfo.h"
+#include "TeamDefinition.h"
 #include "TeamInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "Infinity/Player/InfinityPlayerState.h"
@@ -64,4 +65,16 @@ void ATeamInfo::AddPlayer(AInfinityPlayerState* NewPlayer)
 void ATeamInfo::OnRep_Players()
 {
 	OnPlayersArrayUpdatedDelegate.Broadcast();
+}
+
+USkeletalMesh* ATeamInfo::SelectRandomSkinForPlayer() const
+{
+	if (!TeamDefinition || TeamDefinition->AllowedSkins.Num() <= 0)
+	{
+		return nullptr;
+	}
+
+	const int32 RandomIndex = FMath::RandHelper(TeamDefinition->AllowedSkins.Num());
+
+	return TeamDefinition->AllowedSkins[RandomIndex].LoadSynchronous();
 }

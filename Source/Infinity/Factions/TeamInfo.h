@@ -40,6 +40,8 @@ public:
 	// Adds a player to this team.
 	void AddPlayer(AInfinityPlayerState* NewPlayer);
 
+	USkeletalMesh* SelectRandomSkinForPlayer() const;
+
 protected:
 
 	// What team does this character belong to?

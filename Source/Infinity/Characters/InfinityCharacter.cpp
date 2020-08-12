@@ -114,6 +114,7 @@ void AInfinityCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	// Third Parties
 	DOREPLIFETIME_CONDITION(AInfinityCharacter, bIsSliding, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(AInfinityCharacter, PlayerSkin, COND_SkipOwner); // We can't even see the third person mesh. So don't bother replicating it to the owner.
 }
 
 // Called every frame
@@ -315,6 +316,11 @@ void AInfinityCharacter::OnRep_IsSliding()
 void AInfinityCharacter::OnRep_TeamId()
 {
 
+}
+
+void AInfinityCharacter::OnRep_PlayerSkin()
+{
+	SetPlayerSkin(PlayerSkin, true);
 }
 
 // Called to bind functionality to input
@@ -1011,3 +1017,17 @@ uint8 AInfinityCharacter::GetTeamId() const
 	return TeamId;
 }
 
+void AInfinityCharacter::SetTeamId(const uint8 NewTeamId)
+{
+	TeamId = NewTeamId;
+}
+
+void AInfinityCharacter::SetPlayerSkin(USkeletalMesh* NewPlayerSkin, bool bFromReplication /* = false */)
+{
+	PlayerSkin = NewPlayerSkin;
+	
+	if (GetMesh() && PlayerSkin)
+	{
+		GetMesh()->SetSkeletalMesh(PlayerSkin);
+	}
+}

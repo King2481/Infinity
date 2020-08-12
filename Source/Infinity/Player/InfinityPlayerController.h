@@ -127,4 +127,11 @@ protected:
 
 	// Called when we want to eject to spectator.
 	void OnQueueRespawnDelayFinished();
+
+	// The skin the player will use when it spawns in a pawn.
+	UPROPERTY()
+	USkeletalMesh* PlayerSkin;
+
+	// Setter for the pawn.
+	virtual void SetPawn(APawn* InPawn) override;
 };

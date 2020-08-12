@@ -3,16 +3,20 @@
 
 #include "InfinityPlayerController.h"
 #include "InfinityPlayerState.h"
+#include "Infinity/Characters/InfinityCharacter.h"
 #include "Infinity/HUD/InfinityHUD.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Infinity/GameModes/InfinityGameState.h"
+#include "Infinity/GameModes/InfinityGameModeBase.h"
+#include "Infinity/Factions/TeamInfo.h"
 
 AInfinityPlayerController::AInfinityPlayerController()
 {
 	bIsChatting = false;
 	bIsInGameMenu = false;
 	bIsLookingAtScoreboard = false;
+	PlayerSkin = nullptr;
 
 	InGameMenuWidget = nullptr;
 	ScoreboardWidget = nullptr;
@@ -276,5 +280,27 @@ void AInfinityPlayerController::JoinTeam(uint8 NewTeam)
 	if (GS && PS)
 	{
 		GS->AddPlayerForTeam(PS, NewTeam);
+
+		const auto TeamInfo = GS->GetTeamFromId(NewTeam);
+		if (TeamInfo)
+		{
+			const auto Skin = TeamInfo->SelectRandomSkinForPlayer();
+			if (Skin)
+			{
+				PlayerSkin = Skin;
+			}
+		}
+	}
+}
+
+void AInfinityPlayerController::SetPawn(APawn* InPawn)
+{
+	Super::SetPawn(InPawn);
+
+	const auto NewCharacter = Cast<AInfinityCharacter>(InPawn);
+	if (NewCharacter)
+	{
+		NewCharacter->SetTeamId(GetTeamId());
+		NewCharacter->SetPlayerSkin(PlayerSkin);
 	}
 }
