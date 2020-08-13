@@ -18,4 +18,7 @@ public:
 
 	UInfinitySaveGame();
 	
+	UPROPERTY(BlueprintReadWrite, Category = "Save Game")
+	TSoftObjectPtr<USkeletalMesh> SavedSkin;
+
 };

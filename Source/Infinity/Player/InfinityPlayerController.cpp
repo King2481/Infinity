@@ -10,6 +10,9 @@
 #include "Infinity/GameModes/InfinityGameState.h"
 #include "Infinity/GameModes/InfinityGameModeBase.h"
 #include "Infinity/Factions/TeamInfo.h"
+#include "InfinitySaveGame.h"
+
+#define SAVE_SLOT_NAME "Profile"
 
 AInfinityPlayerController::AInfinityPlayerController()
 {
@@ -277,17 +280,33 @@ void AInfinityPlayerController::JoinTeam(uint8 NewTeam)
 	const auto GS = Cast<AInfinityGameState>(World->GetGameState());
 	const auto PS = Cast<AInfinityPlayerState>(PlayerState);
 
-	if (GS && PS)
+	if (NewTeam != ITeamInterface::InvalidId)
 	{
-		GS->AddPlayerForTeam(PS, NewTeam);
-
-		const auto TeamInfo = GS->GetTeamFromId(NewTeam);
-		if (TeamInfo)
+		if (GS && PS)
 		{
-			const auto Skin = TeamInfo->SelectRandomSkinForPlayer();
-			if (Skin)
+			GS->AddPlayerForTeam(PS, NewTeam);
+
+			const auto TeamInfo = GS->GetTeamFromId(NewTeam);
+			if (TeamInfo)
 			{
-				PlayerSkin = Skin;
+				const auto Skin = TeamInfo->SelectRandomSkinForPlayer();
+				if (Skin)
+				{
+					PlayerSkin = Skin;
+				}
+			}
+		}
+	}
+	else
+	{
+		// We joined an invalid team, assume this is a free for all mode and set the player skin.
+
+		if (UGameplayStatics::DoesSaveGameExist(SAVE_SLOT_NAME, 0))
+		{
+			const auto SaveGame = Cast<UInfinitySaveGame>(UGameplayStatics::LoadGameFromSlot(SAVE_SLOT_NAME, 0));
+			if (SaveGame)
+			{
+				PlayerSkin = SaveGame->SavedSkin.LoadSynchronous();
 			}
 		}
 	}

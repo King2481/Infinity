@@ -123,16 +123,20 @@ void AInfinityGameModeBase::PreLogin(const FString& Options, const FString& Addr
 
 void AInfinityGameModeBase::PostLogin(APlayerController* NewPlayer)
 {
-	if (TeamsForMode.Num() >= 2)
+	const auto PC = Cast<AInfinityPlayerController>(NewPlayer);
+	const auto PS = Cast<AInfinityPlayerState>(NewPlayer->PlayerState);
+	if (PC && PS)
 	{
-		const auto PC = Cast<AInfinityPlayerController>(NewPlayer);
-		const auto PS = Cast<AInfinityPlayerState>(NewPlayer->PlayerState);
-		if (PC && PS)
+		if (TeamsForMode.Num() >= 2)
 		{
 			PC->JoinTeam(ChooseTeam(PS));
 		}
+		else
+		{
+			PC->JoinTeam(ITeamInterface::InvalidId);
+		}
 	}
-
+	
 	Super::PostLogin(NewPlayer);
 }
 

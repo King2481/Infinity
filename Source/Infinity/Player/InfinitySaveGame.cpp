@@ -5,5 +5,5 @@
 
 UInfinitySaveGame::UInfinitySaveGame()
 {
-
+	SavedSkin = nullptr;
 }
