@@ -9,6 +9,8 @@
 class ATeamInfo;
 class AInfinityPlayerState;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerAmmountChangedDelegate);
+
 /**
  * 
  */
@@ -36,6 +38,12 @@ public:
 	// Adds a player to the specifed TeamId
 	void AddPlayerForTeam(AInfinityPlayerState* ForPlayer, uint8 TeamId);
 
+	// Add PlayerState from the PlayerArray.
+	virtual void AddPlayerState(APlayerState* PlayerState) override;
+
+	// Remove PlayerState from the PlayerArray.
+	virtual void RemovePlayerState(APlayerState* PlayerState) override;
+
 protected:
 
 	// When is this game mode expected to end?
@@ -49,4 +57,7 @@ protected:
 	// What teams have been created and are currently in play?
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Gamemode")
 	TArray<ATeamInfo*> Teams;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerAmmountChangedDelegate OnPlayerAmmountChangedDelegate;
 };

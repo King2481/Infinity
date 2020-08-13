@@ -6,6 +6,7 @@
 UInfinityDamageType::UInfinityDamageType()
 {
 	Magnitude = 1.f;
+	RagdollLaunchMagnitude = 12500.f;
 }
 
 UDamageTypeBullet::UDamageTypeBullet()
@@ -26,4 +27,5 @@ UDamageTypeImpact::UDamageTypeImpact()
 UDamageTypeExplosive::UDamageTypeExplosive()
 {
 	Magnitude = 1000.f;
+	RagdollLaunchMagnitude = 30000.f;
 }

@@ -157,7 +157,7 @@ float AInfinityCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 			// If we actually are dying, since Die() may return false. Launch our character now.
 			if (bIsDying)
 			{
-				// TODO, use force based on damage type.
+
 				BroadcastDeath(HitInfo.ImpactPoint, MomentumDir * 12500.f, HitInfo.BoneName);
 			}
 		}
@@ -165,7 +165,6 @@ float AInfinityCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		const FVector Momentum = CalculateMomentumFromDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 		if (!bIsDying)
 		{
-			// TODO: ragdoll should go flying.
 			LaunchCharacter(Momentum, true, false);
 		}
 
@@ -210,12 +209,18 @@ FVector AInfinityCharacter::CalculateMomentumFromDamage(float DamageAmount, FDam
 
 float AInfinityCharacter::ModifyDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const
 {
-	return DamageAmount;
+	float MitigatedDamage = DamageAmount;
+	
+	if (Armor >= FLT_EPSILON)
+	{
+		MitigatedDamage /= 2.f;
+	}
+
+	return MitigatedDamage;
 }
 
 float AInfinityCharacter::DamageArmor(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const
 {
-	// TODO: better calculation for armor damage.
 	return DamageAmount * 3.f;
 }
 

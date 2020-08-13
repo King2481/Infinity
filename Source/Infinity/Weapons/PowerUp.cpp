@@ -34,7 +34,7 @@ void UPowerUp::Deactivate(AInfinityCharacter* ForCharacter)
 
 	// Kill any potential lingering timer handles
 	World->GetTimerManager().ClearTimer(DeactivateTimerHandle);
-	BlueprintActivate(ForCharacter);
+	BlueprintDeactivate(ForCharacter);
 
 	// Note: From what I've read, we don't need to destroy UObjects, it is automatically handled during
 	//       the garbage collection pass when there are no more references.

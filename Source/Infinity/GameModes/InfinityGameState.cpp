@@ -67,3 +67,17 @@ void AInfinityGameState::AddPlayerForTeam(AInfinityPlayerState* ForPlayer, uint8
 
 	Team->AddPlayer(ForPlayer);
 }
+
+void AInfinityGameState::AddPlayerState(APlayerState* PlayerState)
+{
+	Super::AddPlayerState(PlayerState);
+
+	OnPlayerAmmountChangedDelegate.Broadcast();
+}
+
+void AInfinityGameState::RemovePlayerState(APlayerState* PlayerState)
+{
+	Super::RemovePlayerState(PlayerState);
+
+	OnPlayerAmmountChangedDelegate.Broadcast();
+}
